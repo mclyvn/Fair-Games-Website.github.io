@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fair Game Store</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">FAIR GAME</div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Action</a>
+            <a href="#">RPG</a>
+            <a href="#">About Us</a>
+        </nav>
+        <div class="cart-icon" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count">0</span>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Welcome to Fair Game</h1>
+        <p>Thế giới game bản quyền miễn phí</p>
+    </section>
+
+    <div class="container">
+        <h2>Our Games</h2>
+        <div class="product-grid">
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200?text=Ace+Slayer" alt="Ace Slayer">
+                <h3>Ace Slayer</h3>
+                <p class="genre">Action / RPG</p>
+                <p class="price">Free</p>
+                <button onclick="addToCart('Ace Slayer', 0, 'https://via.placeholder.com/50')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200?text=Bunny+Adventure" alt="Bunny Adventure">
+                <h3>Bunny Adventure</h3>
+                <p class="genre">Adventure</p>
+                <p class="price">Free</p>
+                <button onclick="addToCart('Bunny Adventure', 0, 'https://via.placeholder.com/50')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="https://via.placeholder.com/300x200?text=PUBG+Mobile" alt="PUBG">
+                <h3>PUBG Mobile</h3>
+                <p class="genre">Shooter</p>
+                <p class="price">Free</p>
+                <button onclick="addToCart('PUBG Mobile', 0, 'https://via.placeholder.com/50')">Add to Cart</button>
+            </div>
+             <div class="product-card">
+                <img src="https://via.placeholder.com/300x200?text=Elden+Ring" alt="Elden Ring">
+                <h3>Elden Ring</h3>
+                <p class="genre">RPG / Souls</p>
+                <p class="price">$59.99</p>
+                <button onclick="addToCart('Elden Ring', 59.99, 'https://via.placeholder.com/50')">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Your Cart</h3>
+            <button onclick="toggleCart()" class="close-btn">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <p class="empty-msg">Giỏ hàng đang trống</p>
+        </div>
+        <div class="cart-footer">
+            <p>Total: <span id="cartTotal">$0.00</span></p>
+            <button class="checkout-btn">Checkout</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

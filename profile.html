@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Game Thủ - Fair Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* CSS RIÊNG CHO TRANG PROFILE */
+        body { background: #0b0b0b; }
+        
+        .profile-container {
+            max-width: 1200px; margin: 50px auto; padding: 20px;
+            display: grid; grid-template-columns: 300px 1fr; gap: 40px;
+        }
+
+        /* --- STYLE CHO AVATAR --- */
+        .profile-sidebar {
+            background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px; border-radius: 15px; text-align: center; height: fit-content;
+        }
+        .user-avatar {
+            width: 120px; height: 120px; margin: 0 auto 20px;
+            border-radius: 50%; border: 4px solid #e74c3c;
+            background: #111; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 50px; color: #e74c3c; cursor: pointer;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+        }
+        #avatarImg { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex; justify-content: center; align-items: center;
+            color: #fff; font-size: 30px; opacity: 0; transition: 0.3s;
+        }
+        .user-avatar:hover .avatar-overlay { opacity: 1; }
+
+        .user-email { font-size: 1.2em; font-weight: bold; color: #fff; margin-bottom: 5px; word-break: break-all; }
+        .user-role { color: #888; font-size: 0.9em; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
+        
+        .logout-btn-profile {
+            width: 100%; padding: 12px; background: transparent;
+            border: 1px solid #e74c3c; color: #e74c3c; font-weight: bold;
+            cursor: pointer; transition: 0.3s; border-radius: 5px;
+        }
+        .logout-btn-profile:hover { background: #e74c3c; color: white; }
+
+        /* Cột bên phải: Lịch sử mua hàng */
+        .profile-content h2 {
+            border-left: 5px solid #e74c3c; padding-left: 15px; margin-bottom: 30px;
+            text-transform: uppercase; color: #fff; letter-spacing: 2px;
+        }
+        .order-card {
+            background: #1a1a1a; border-radius: 10px; padding: 20px; margin-bottom: 20px;
+            border: 1px solid #333; position: relative; overflow: hidden;
+        }
+        .order-header {
+            display: flex; justify-content: space-between; border-bottom: 1px solid #333;
+            padding-bottom: 10px; margin-bottom: 15px; font-size: 0.9em; color: #888;
+        }
+        .game-list { display: flex; flex-wrap: wrap; gap: 15px; }
+        .purchased-game {
+            display: flex; align-items: center; background: #252525;
+            padding: 10px; border-radius: 5px; border: 1px solid #444; width: 100%;
+        }
+        .purchased-game img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
+        .game-info h4 { margin: 0; font-size: 16px; color: white; }
+        .game-info p { margin: 0; color: #e74c3c; font-size: 14px; }
+        
+        #loading { text-align: center; color: #888; margin-top: 50px; }
+
+        @media (max-width: 768px) { .profile-container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">FAIR GAME</div>
+        <nav>
+            <a href="index.html">Trang chủ</a>
+            <a href="docquyen.html">Game độc quyền</a>
+            <a href="aboutus.html">About us</a>
+        </nav>
+        <div class="header-right">
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count">0</span>
+            </div>
+            <div class="user-box" id="userBox"></div>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        
+        <div class="profile-sidebar">
+            <div class="user-avatar" onclick="document.getElementById('avatarInput').click()">
+                <img id="avatarImg" src="" alt="Avatar" style="display: none;">
+                <i id="defaultIcon" class="fas fa-user-astronaut"></i>
+                <div class="avatar-overlay"><i class="fas fa-camera"></i></div>
+            </div>
+            
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleFileUpload(event)">
+
+            <div id="displayEmail" class="user-email">Đang tải...</div>
+            <div class="user-role">Thành viên VIP</div>
+            
+            <button onclick="logout()" class="logout-btn-profile">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </button>
+        </div>
+
+        <div class="profile-content">
+            <h2>Thư Viện Game Đã Mua</h2>
+            <div id="loading"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>
+            <div id="ordersList"></div>
+        </div>
+
+    </div>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header"><h3>Giỏ hàng</h3><button onclick="toggleCart()" class="close-btn">&times;</button></div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <p>Tổng: <span id="cartTotal">$0.00</span></p>
+            <button class="checkout-btn" onclick="openCheckout()">Thanh toán</button>
+        </div>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <script type="module">
+        import { auth, db } from "./firebase.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        let currentUserUID = null;
+
+        // Kiểm tra đăng nhập
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserUID = user.uid;
+                document.getElementById('displayEmail').innerText = user.email;
+                loadUserProfile(user.uid);
+                loadOrderHistory(user.uid);
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        // Tải Avatar
+        function loadUserProfile(userId) {
+            const userRef = ref(db, 'users/' + userId);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.avatar) {
+                    document.getElementById('avatarImg').src = data.avatar;
+                    document.getElementById('avatarImg').style.display = 'block';
+                    document.getElementById('defaultIcon').style.display = 'none';
+                }
+            });
+        }
+
+        // Upload Avatar (Gắn vào window để HTML gọi được)
+        window.handleFileUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Giới hạn 800KB
+            if (file.size > 800 * 1024) {
+                alert("Ảnh quá nặng (>800KB)! Vui lòng chọn ảnh nhẹ hơn.");
+                return;
+            }
+
+            const overlay = document.querySelector('.avatar-overlay');
+            overlay.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            overlay.style.opacity = 1;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+                if (currentUserUID) {
+                    update(ref(db, 'users/' + currentUserUID), {
+                        avatar: base64String
+                    }).then(() => {
+                        alert("Cập nhật Avatar thành công!");
+                        overlay.innerHTML = '<i class="fas fa-camera"></i>';
+                        overlay.style.opacity = ''; 
+                    }).catch((err) => {
+                        console.error(err);
+                        alert("Lỗi khi lưu ảnh!");
+                        overlay.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                    });
+                }
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // Tải lịch sử mua hàng
+        function loadOrderHistory(userId) {
+            const ordersRef = ref(db, 'orders/' + userId);
+            const container = document.getElementById('ordersList');
+            const loading = document.getElementById('loading');
+
+            onValue(ordersRef, (snapshot) => {
+                loading.style.display = 'none';
+                container.innerHTML = ""; 
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const orders = Object.values(data).reverse();
+                    if(orders.length === 0) { container.innerHTML = "<p style='color:#666'>Chưa có đơn hàng nào.</p>"; return; }
+                    orders.forEach(order => {
+                        let gamesHtml = "";
+                        if (order.items) {
+                            order.items.forEach(game => {
+                                let priceText = game.price === 0 ? "FREE" : `$${game.price}`;
+                                gamesHtml += `
+                                    <div class="purchased-game">
+                                        <img src="${game.image}" alt="${game.name}">
+                                        <div class="game-info"><h4>${game.name}</h4><p>${priceText}</p></div>
+                                        <button style="margin-left:auto; background:#27ae60; color:white; border:none; padding:5px 15px; border-radius:4px; cursor:pointer;"><i class="fas fa-download"></i> Tải</button>
+                                    </div>`;
+                            });
+                        }
+                        const orderCard = `
+                            <div class="order-card">
+                                <div class="order-header"><span>Ngày mua: ${order.date}</span><span style="color:#e74c3c;">Tổng: $${order.total.toFixed(2)}</span></div>
+                                <div class="game-list">${gamesHtml}</div>
+                            </div>`;
+                        container.innerHTML += orderCard;
+                    });
+                } else {
+                    container.innerHTML = `<div style="text-align:center; padding:50px; color:#666;"><i class="fas fa-ghost" style="font-size:40px; margin-bottom:10px;"></i><p>Bạn chưa mua game nào cả.</p><a href="index.html" style="color:#e74c3c;">Về trang chủ mua sắm ngay!</a></div>`;
+                }
+            });
+        }
+    </script>
+    
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>

@@ -9,10 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* Layout trang chi tiết */
+        /* GIỮ NGUYÊN CSS CŨ CỦA BẠN */
         .game-detail-wrapper { max-width: 1000px; margin: 40px auto; padding: 20px; background: #1e1e1e; border-radius: 8px; }
-        
-        /* Phần 1: Thông tin game */
         .top-section { display: flex; gap: 30px; margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 30px; }
         .detail-img { width: 350px; height: 300px; object-fit: cover; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .detail-info { flex: 1; }
@@ -22,20 +20,17 @@
         .big-btn { padding: 15px 40px; font-size: 1.2em; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .big-btn:hover { background: #c0392b; transform: scale(1.05); }
 
-        /* Phần 2: Bảng cấu hình */
         .section-title { color: #fff; border-left: 5px solid #e74c3c; padding-left: 15px; margin: 30px 0 20px 0; font-size: 1.5em; }
         .req-table { width: 100%; border-collapse: collapse; background: #252525; border-radius: 8px; overflow: hidden; margin-bottom: 40px; }
         .req-table th, .req-table td { padding: 15px; text-align: left; border-bottom: 1px solid #333; color: #ccc; }
         .req-table th { background-color: #2c2c2c; color: #e74c3c; width: 25%; font-weight: bold; }
 
-        /* Phần 3: Form đánh giá & Sao */
         .review-form-container { background-color: #252525; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #333; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #fff; }
         .form-input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background: #1e1e1e; color: white; }
         textarea.form-input { resize: vertical; height: 80px; font-family: inherit; }
         
-        /* Sao tương tác */
         .star-widget { display: flex; gap: 5px; direction: ltr; margin-bottom: 10px; }
         .star-widget span { font-size: 30px; color: #444; cursor: pointer; transition: color 0.2s; }
         .star-widget span.hovered, .star-widget span.selected { color: #f1c40f; }
@@ -43,7 +38,6 @@
         .submit-btn { background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .submit-btn:hover { background-color: #219150; }
 
-        /* Phần 4: Danh sách bình luận */
         .review-list { display: flex; flex-direction: column; gap: 15px; }
         .review-card { background-color: #252525; padding: 15px 20px; border-radius: 8px; border-left: 4px solid #555; }
         .user-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
@@ -52,7 +46,13 @@
         .review-date { font-size: 0.8em; color: #777; display: block; margin-bottom: 5px; }
         .review-text { color: #ccc; line-height: 1.5; }
 
-        /* Responsive */
+        /* Thông báo yêu cầu đăng nhập */
+        #loginWarning {
+            background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c;
+            padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 30px; display: none;
+        }
+        #loginWarning a { color: #fff; text-decoration: underline; font-weight: bold; }
+
         @media(max-width: 768px) {
             .top-section { flex-direction: column; }
             .detail-img { width: 100%; height: auto; }
@@ -68,21 +68,29 @@
             <a href="../docquyen.html">Game độc quyền</a>
             <a href="../aboutus.html">About us</a>
         </nav>
-        <div class="cart-icon" onclick="toggleCart()">
-            <i class="fas fa-shopping-cart"></i>
-            <span id="cart-count">0</span>
+        
+        <div class="header-right">
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count">0</span>
+            </div>
+            <div class="user-box" id="userBox">
+                <a href="../login.html">Đăng nhập</a>
+            </div>
         </div>
     </header>
 
     <div class="game-detail-wrapper">
         
         <div class="top-section">
-            <img src="..\images\slayer.png" alt="Game Image" class="detail-img">
+            <img src="../images/slayer.png" alt="Game Image" class="detail-img">
             <div class="detail-info">
-                <h1>Ace Slayer</h1> <p style="color:#888; font-style: italic;">Thể loại: Action / RPG</p>
-                <p class="price">Free</p> <p class="desc">
-                    Elden Ring là một game nhập vai hành động thế giới mở... 
-                    (Viết mô tả game vào đây)
+                <h1>Ace Slayer</h1> 
+                <p style="color:#888; font-style: italic;">Thể loại: Action / RPG</p>
+                <p class="price">Free</p> 
+                <p class="desc">
+                    Ace Slayer là một game nhập vai hành động thế giới mở... 
+                    (Mô tả game...)
                 </p>
                 
                 <button class="big-btn" onclick="addToCart('Ace Slayer', 0, '../images/slayer.png')">
@@ -102,10 +110,13 @@
 
         <h2 class="section-title">Đánh giá từ người chơi</h2>
         
-        <div class="review-form-container">
+        <div id="loginWarning">
+            Bạn cần <a href="../login.html">Đăng nhập</a> để viết đánh giá.
+        </div>
+
+        <div class="review-form-container" id="reviewForm" style="display: none;">
             <div class="form-group">
-                <label>Tên của bạn:</label>
-                <input type="text" id="inputName" class="form-input" placeholder="Nhập tên hiển thị...">
+                <label>Đang đánh giá dưới tên: <span id="currentUserLabel" style="color: #e74c3c;">...</span></label>
             </div>
             <div class="form-group">
                 <label>Đánh giá:</label>
@@ -117,22 +128,24 @@
             </div>
             <div class="form-group">
                 <label>Nội dung:</label>
-                <textarea id="inputComment" class="form-input" placeholder="Chia sẻ cảm nghĩ..."></textarea>
+                <textarea id="inputComment" class="form-input" placeholder="Chia sẻ cảm nghĩ của bạn..."></textarea>
             </div>
-            <button class="submit-btn" onclick="addReview()">Gửi đánh giá</button>
+            <button class="submit-btn" id="btnSubmitReview">Gửi đánh giá</button>
         </div>
 
-        <div id="reviewList" class="review-list"></div>
+        <div id="reviewList" class="review-list">
+            <p style="color:#888; text-align:center">Đang tải bình luận...</p>
+        </div>
     </div>
 
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
-            <h3>Your Cart</h3>
+            <h3>Giỏ hàng</h3>
             <button onclick="toggleCart()" class="close-btn">&times;</button>
         </div>
         <div class="cart-items" id="cartItems"></div>
         <div class="cart-footer">
-            <p>Total: <span id="cartTotal">$0.00</span></p>
+            <p>Tổng tiền: <span id="cartTotal">$0.00</span></p>
             <button class="checkout-btn" onclick="openCheckout()">Thanh toán</button>
         </div>
     </div>
@@ -152,102 +165,129 @@
         </div>
     </div>
 
-    <script src="../script.js"></script> <script>
-        /* --- LOGIC RIÊNG CHO PHẦN ĐÁNH GIÁ --- */
-        
-        // !!! QUAN TRỌNG: ĐỔI ID NÀY CHO TỪNG GAME KHÁC NHAU (Vd: 'pubg_reviews', 'bunny_reviews')
-        const GAME_ID = 'eldenring_reviews'; 
+    <script type="module">
+        import { auth, db } from "../firebase.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // 1. Xử lý hiệu ứng chọn Sao
+        // !!! QUAN TRỌNG: ID CỦA GAME NÀY TRÊN DATABASE
+        // Khi làm game2.html, hãy đổi thành 'game2_reviews'
+        const GAME_ID = 'game1_reviews'; 
+
+        let currentUser = null;
+
+        // 1. KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                // Hiện form, ẩn cảnh báo
+                document.getElementById('reviewForm').style.display = 'block';
+                document.getElementById('loginWarning').style.display = 'none';
+                document.getElementById('currentUserLabel').innerText = user.email;
+            } else {
+                currentUser = null;
+                // Ẩn form, hiện cảnh báo
+                document.getElementById('reviewForm').style.display = 'none';
+                document.getElementById('loginWarning').style.display = 'block';
+            }
+        });
+
+        // 2. XỬ LÝ CHỌN SAO (Giữ nguyên logic cũ của bạn)
         const stars = document.querySelectorAll('.star-widget span');
         const ratingValueInput = document.getElementById('ratingValue');
         const ratingText = document.getElementById('ratingText');
         const ratingLabels = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Tuyệt vời"];
-        let currentRating = 0;
-
+        
         stars.forEach((star, index) => {
-            star.addEventListener('mouseover', () => {
+            star.addEventListener('click', () => {
+                ratingValueInput.value = index + 1;
                 highlightStars(index + 1);
                 ratingText.innerText = ratingLabels[index];
                 ratingText.style.color = "#f1c40f";
-            });
-            star.addEventListener('mouseout', () => {
-                highlightStars(currentRating);
-                if(currentRating === 0) {
-                    ratingText.innerText = "Chưa chọn sao";
-                    ratingText.style.color = "#888";
-                } else {
-                    ratingText.innerText = ratingLabels[currentRating - 1];
-                }
-            });
-            star.addEventListener('click', () => {
-                currentRating = index + 1;
-                ratingValueInput.value = currentRating;
-                highlightStars(currentRating);
             });
         });
 
         function highlightStars(count) {
             stars.forEach((s, i) => {
-                if (i < count) s.classList.add('hovered');
-                else s.classList.remove('hovered');
+                if (i < count) {
+                    s.classList.add('selected');
+                    s.style.color = "#f1c40f";
+                } else {
+                    s.classList.remove('selected');
+                    s.style.color = "#444";
+                }
             });
         }
 
-        // 2. Xử lý Lưu & Tải bình luận
-        document.addEventListener('DOMContentLoaded', loadReviews);
+        // 3. GỬI ĐÁNH GIÁ LÊN DATABASE
+        document.getElementById('btnSubmitReview').addEventListener('click', () => {
+            if (!currentUser) return;
 
-        function addReview() {
-            const name = document.getElementById('inputName').value.trim();
             const comment = document.getElementById('inputComment').value.trim();
             const starsSelected = parseInt(ratingValueInput.value);
 
-            if (name === "" || comment === "") { alert("Vui lòng nhập tên và nội dung!"); return; }
+            if (comment === "") { alert("Vui lòng nhập nội dung!"); return; }
             if (starsSelected === 0) { alert("Vui lòng chọn số sao!"); return; }
 
-            const reviewData = {
-                name: name,
-                stars: '★'.repeat(starsSelected) + '☆'.repeat(5 - starsSelected),
-                date: new Date().toLocaleString('vi-VN'),
-                comment: comment
-            };
+            // Đẩy dữ liệu lên Firebase
+            const reviewsRef = ref(db, 'reviews/' + GAME_ID);
+            push(reviewsRef, {
+                user: currentUser.email, // Tự lấy email, không cho nhập tay
+                stars: starsSelected,
+                content: comment,
+                createdAt: new Date().toLocaleString('vi-VN')
+            }).then(() => {
+                // Reset form sau khi gửi
+                document.getElementById('inputComment').value = '';
+                ratingValueInput.value = 0;
+                ratingText.innerText = "Chưa chọn sao";
+                ratingText.style.color = "#888";
+                highlightStars(0);
+                alert("Cảm ơn bạn đã đánh giá!");
+            }).catch((error) => {
+                console.error("Lỗi:", error);
+                alert("Có lỗi xảy ra, vui lòng thử lại.");
+            });
+        });
 
-            // Lưu vào localStorage
-            let reviews = JSON.parse(localStorage.getItem(GAME_ID)) || [];
-            reviews.push(reviewData);
-            localStorage.setItem(GAME_ID, JSON.stringify(reviews));
-
-            // Hiển thị ngay
-            createReviewElement(reviewData);
-
-            // Reset form
-            document.getElementById('inputName').value = '';
-            document.getElementById('inputComment').value = '';
-            ratingValueInput.value = 0;
-            currentRating = 0;
-            highlightStars(0);
-        }
-
-        function createReviewElement(data) {
+        // 4. TẢI ĐÁNH GIÁ TỪ DATABASE (REALTIME)
+        const reviewsRef = ref(db, 'reviews/' + GAME_ID);
+        onValue(reviewsRef, (snapshot) => {
             const list = document.getElementById('reviewList');
-            const div = document.createElement('div');
-            div.className = 'review-card';
-            div.innerHTML = `
-                <div class="user-header">
-                    <span class="username">${data.name}</span>
-                    <span class="rating">${data.stars}</span>
-                </div>
-                <span class="review-date">${data.date}</span>
-                <p class="review-text">${data.comment}</p>
-            `;
-            list.insertBefore(div, list.firstChild);
-        }
+            list.innerHTML = ""; // Xóa danh sách cũ
 
-        function loadReviews() {
-            const list = document.getElementById('reviewList');
-            let reviews = JSON.parse(localStorage.getItem(GAME_ID)) || [];
-            reviews.reverse().forEach(review => createReviewElement(review));
-        }
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                // Chuyển object thành array để dễ xử lý và đảo ngược (mới nhất lên đầu)
+                const reviews = Object.values(data).reverse();
+
+                reviews.forEach(review => {
+                    const starString = '★'.repeat(review.stars) + '☆'.repeat(5 - review.stars);
+                    // Lấy chữ cái đầu của email làm avatar
+                    const avatarChar = review.user.charAt(0).toUpperCase();
+
+                    const html = `
+                        <div class="review-card">
+                            <div class="user-header">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div style="width:30px; height:30px; background:#333; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#e74c3c; font-weight:bold;">${avatarChar}</div>
+                                    <span class="username">${review.user}</span>
+                                </div>
+                                <span class="rating">${starString}</span>
+                            </div>
+                            <span class="review-date">${review.createdAt}</span>
+                            <p class="review-text">${review.content}</p>
+                        </div>
+                    `;
+                    list.innerHTML += html;
+                });
+            } else {
+                list.innerHTML = "<p style='color:#666; text-align:center'>Chưa có đánh giá nào. Hãy là người đầu tiên!</p>";
+            }
+        });
+
     </script>
+    
+    <script type="module" src="../script.js"></script>
 </body>
 </html>

@@ -152,6 +152,9 @@ window.closeCheckout = function() {
 
 window.processPayment = function(e) {
     e.preventDefault();
+    
+    if (!currentUser) return; // Chắc chắn đã đăng nhập
+
     const btn = document.querySelector('.pay-btn');
     const originalText = btn.innerText;
     
@@ -159,16 +162,38 @@ window.processPayment = function(e) {
     btn.style.background = "#777";
     btn.disabled = true;
     
-    setTimeout(() => {
-        alert(`Thanh toán thành công! Key game đã gửi về email: ${currentUser.email}`);
-        cart = [];
-        saveData();
+    // --- ĐOẠN MỚI: LƯU VÀO LỊCH SỬ MUA HÀNG ---
+    const orderData = {
+        items: cart, // Lưu danh sách game đang có trong giỏ
+        total: cart.reduce((sum, item) => sum + item.price, 0),
+        date: new Date().toLocaleString('vi-VN'),
+        customerName: document.querySelector('input[placeholder="Họ tên"]').value
+    };
+
+    // Đẩy vào nhánh: orders / ID_Của_User / [Danh sách đơn hàng]
+    push(ref(db, `orders/${currentUser.uid}`), orderData)
+    .then(() => {
+        // Sau khi lưu xong thì mới báo thành công và xóa giỏ
+        alert(`Thanh toán thành công! Game đã được thêm vào thư viện.`);
+        
+        cart = []; // Xóa giỏ hàng trong RAM
+        saveData(); // Cập nhật giỏ hàng rỗng lên Firebase (nhánh carts)
         window.renderCart();
         window.closeCheckout();
+        
         btn.innerText = originalText;
         btn.style.background = "#e74c3c";
         btn.disabled = false;
-    }, 1500);
+
+        // Chuyển hướng sang trang Profile để xem game vừa mua
+        window.location.href = "profile.html";
+    })
+    .catch((error) => {
+        console.error("Lỗi thanh toán:", error);
+        alert("Lỗi kết nối, vui lòng thử lại!");
+        btn.disabled = false;
+        btn.innerText = originalText;
+    });
 };
 
 // 7. TÌM KIẾM VÀ USER BOX
@@ -186,12 +211,29 @@ window.searchGame = function() {
     }
 };
 
+// Hàm cập nhật giao diện User (Góc trên phải)
 function updateUserBox(email) {
     const userBox = document.getElementById("userBox");
-    if (email) {
-        userBox.innerHTML = `<span>${email}</span><button onclick="logout()">Đăng xuất</button>`;
-    } else {
-        userBox.innerHTML = `<a href="login.html">Đăng nhập</a>`;
+    
+    // Kiểm tra xem người dùng đang đứng ở đâu?
+    // Nếu đường dẫn có chữ "/games/", nghĩa là đang ở trong thư mục game -> cần lùi ra ngoài (../)
+    const isInGameFolder = window.location.pathname.includes("/games/");
+    const pathPrefix = isInGameFolder ? "../" : "";
+
+    // Tìm đoạn này trong hàm updateUserBox
+if (email) {
+    // Sửa dòng này: Thêm thẻ <a href="profile.html"> bao quanh email
+    userBox.innerHTML = `
+        <a href="profile.html" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-right: 10px;">
+            <i class="fas fa-user-circle"></i> ${email}
+        </a>
+        <button onclick="logout()">Đăng xuất</button>
+    `;
+}else {
+        // Nếu chưa đăng nhập -> Tự động thêm ../ nếu đang ở trang game
+        userBox.innerHTML = `
+            <a href="${pathPrefix}login.html">Đăng nhập</a>
+        `;
     }
 }
 
@@ -220,3 +262,81 @@ function reveal() {
 
 // Gọi hàm 1 lần khi tải trang để hiện những cái đang thấy
 reveal();
+
+
+// ==========================================
+// 8. CHỨC NĂNG BÌNH LUẬN (COMMENT SYSTEM)
+// ==========================================
+
+// Hàm gửi bình luận
+window.postComment = function(gameId) {
+    if (!currentUser) {
+        alert("Bạn cần đăng nhập để bình luận!");
+        window.location.href = "../login.html"; // Chuyển hướng về trang login
+        return;
+    }
+
+    const input = document.getElementById('commentInput');
+    const content = input.value.trim();
+
+    if (content === "") {
+        alert("Vui lòng nhập nội dung!");
+        return;
+    }
+
+    // Tạo đối tượng bình luận
+    const newComment = {
+        user: currentUser.email,
+        content: content,
+        time: new Date().toLocaleString()
+    };
+
+    // Lưu vào Firebase: comments / gameId / [danh sách]
+    // Lưu ý: Đây là cách lưu đơn giản bằng cách lấy list cũ về rồi push list mới
+    const dbRef = ref(db);
+    get(child(dbRef, `comments/${gameId}`)).then((snapshot) => {
+        let comments = snapshot.exists() ? snapshot.val() : [];
+        if (!Array.isArray(comments)) comments = []; // Đảm bảo nó là mảng
+        
+        comments.push(newComment);
+
+        set(ref(db, `comments/${gameId}`), comments)
+            .then(() => {
+                input.value = ""; // Xóa ô nhập
+                window.loadComments(gameId); // Tải lại danh sách
+            })
+            .catch((err) => console.error(err));
+    });
+};
+
+// Hàm tải bình luận (Cần export để file html gọi được)
+window.loadComments = function(gameId) {
+    const list = document.getElementById('commentList');
+    if (!list) return;
+
+    const dbRef = ref(db);
+    get(child(dbRef, `comments/${gameId}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+            const comments = snapshot.val();
+            list.innerHTML = ""; // Xóa cũ
+            
+            // Duyệt ngược để hiện comment mới nhất lên đầu
+            for (let i = comments.length - 1; i >= 0; i--) {
+                let c = comments[i];
+                let userInitial = c.user.charAt(0).toUpperCase();
+                
+                list.innerHTML += `
+                    <div class="single-comment">
+                        <div class="c-avatar">${userInitial}</div>
+                        <div style="flex: 1;">
+                            <h4 style="color: #e74c3c; margin-bottom: 5px;">${c.user} <span style="font-size:12px; color:#666; margin-left:10px;">${c.time}</span></h4>
+                            <p style="color: #ccc;">${c.content}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            list.innerHTML = "<p style='color:#666; text-align:center'>Chưa có bình luận nào. Hãy là người đầu tiên!</p>";
+        }
+    }).catch((err) => console.error(err));
+};

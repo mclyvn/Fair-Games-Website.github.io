@@ -326,3 +326,32 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
 /* Leader Card (Nổi bật hơn) */
 .leader-card { border: 2px solid #e74c3c; background: rgba(231, 76, 60, 0.05); }
 .leader-card .member-avatar { border-color: #e74c3c; color: #e74c3c; }
+
+/* --- STYLE CHO AVATAR --- */
+.user-avatar {
+    width: 120px; height: 120px; margin: 0 auto 20px;
+    border-radius: 50%; border: 4px solid #e74c3c;
+    background: #111; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 50px; color: #e74c3c; cursor: pointer;
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+}
+
+/* Ảnh thật phải che phủ hết khung tròn */
+#avatarImg {
+    width: 100%; height: 100%; object-fit: cover;
+}
+
+/* Lớp phủ mờ chứa icon máy ảnh */
+.avatar-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex; justify-content: center; align-items: center;
+    color: #fff; font-size: 30px;
+    opacity: 0; transition: 0.3s; /* Mặc định ẩn */
+}
+
+/* Khi di chuột vào thì hiện lớp phủ lên */
+.user-avatar:hover .avatar-overlay {
+    opacity: 1;
+}

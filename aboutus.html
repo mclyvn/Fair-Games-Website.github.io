@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - Fair Game Team</title>
-    
+    <title>Về Chúng Tôi | Fair Game Team</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .member-card { background: rgba(30,30,30,0.6); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .member-card:hover { transform: translateY(-10px); border-color: #e74c3c; box-shadow: 0 0 20px rgba(231,76,60,0.3); }
+        .leader-card { border: 2px solid #e74c3c; box-shadow: 0 0 15px rgba(231,76,60,0.2); }
+    </style>
 </head>
 <body>
 
@@ -14,88 +20,162 @@
         <div class="logo">FAIR GAME</div>
         <nav>
             <a href="index.html">Trang chủ</a>
-            
             <a href="docquyen.html">Game độc quyền</a>
             <a href="aboutus.html" class="active">About us</a>
+        </nav>
+        <div class="header-right">
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count">0</span>
+            </div>
+            <div class="user-box" id="userBox">
+                <a href="login.html">Đăng nhập</a>
+            </div>
+        </div>
     </header>
 
-    
-    <div class="container">
-        <h1 class="about-title">Đội Ngũ Của Chúng Tôi</h1>
-        <p class="about-desc">
-            Chúng tôi là những tài năng đến từ HCMUS, tập hợp lại với mục tiêu mang đến những trải nghiệm chơi game tuyệt vời nhất cho cộng đồng.
-        </p>
+    <section class="about-hero">
+        <div>
+            <h1>Đội Ngũ Phát Triển</h1>
+            <p style="color: #ccc; letter-spacing: 2px;">WE ARE GAMERS - WE ARE CREATORS</p>
+        </div>
+    </section>
 
-        <h2 style="border-left: 4px solid #e74c3c; padding-left: 30px; color: white; margin: 30;">Video giới thiệu</h2>
-        <div class="group-video-wrapper">
-            <iframe 
-                src="https://www.youtube.com/embed/_miFWyf9T4s" 
-                title="Intro Fair Game Team" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-            </iframe>
+    <div class="about-container">
+        
+        <div class="about-text reveal">
+            <p>"Chúng tôi là tập hợp những sinh viên đam mê công nghệ từ HCMUS. Với tình yêu mãnh liệt dành cho Game, chúng tôi tạo ra Fair Game Store để mang đến những trải nghiệm bản quyền đỉnh cao nhất cho cộng đồng game thủ Việt Nam."</p>
         </div>
 
-        <div style="display: flex; justify-content: center; margin-bottom: 50px;">
-             </div>
-        <h2 style="border-left: 4px solid #e74c3c; padding-left: 30px; color: white; margin: 30;">Thành viên nhóm</h2>
-        <div style="display: flex; justify-content: center; margin-bottom: 50px;">
-            <a href="https://mclyvn.github.io/DuyTuan/" class="member-card leader-card">
-                <h3 class="member-name">Trần Duy Tuấn</h3>
-                <p class ="member-id">MSSV 25120463</p>
-                <p class="member-role">Leader / Web Developer</p>
-                <p class="member-bio">Người sáng lập Fair Game</p>
-            </a>
+        <div class="video-section reveal">
+            <h2 class="section-title" style="color: white; margin-bottom: 30px; text-transform: uppercase; border-left: 5px solid #e74c3c; padding-left: 15px; display: inline-block;">
+                Video Giới Thiệu
+            </h2>
+            <div class="video-frame">
+                <iframe 
+                    src="https://www.youtube.com/embed/_miFWyf9T4s" 
+                    title="Intro Fair Game Team" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
         </div>
+
+        <h2 class="section-title reveal" style="color: white; text-transform: uppercase; border-left: 5px solid #e74c3c; padding-left: 15px; margin-top: 50px;">
+            Thành Viên Nhóm
+        </h2>
 
         <div class="team-grid">
             
-            <a href="https://about.me/tuongtran" class="member-card">
+            <a href="https://mclyvn.github.io/DuyTuan/" target="_blank" class="member-card leader-card reveal">
+                <div class="member-avatar"><i class="fas fa-crown"></i></div>
+                <h3 class="member-name">Trần Duy Tuấn</h3>
+                <p class="member-role">Leader / Web Developer</p>
+                <div class="member-id">MSSV: 25120463</div>
+                <p class="member-bio">Người sáng lập dự án, chịu trách nhiệm kiến trúc hệ thống.</p>
+            </a>
+
+            <a href="https://about.me/tuongtran" target="_blank" class="member-card reveal">
+                <div class="member-avatar"><i class="fas fa-gamepad"></i></div>
                 <h3 class="member-name">Trần Minh Tường</h3>
-                <p class ="member-id">MSSV 25120466</p>
                 <p class="member-role">Game Developer</p>
-                <p class="member-bio">Chuyên gia lập trình, nhà làm game hàng đầu thế giới.</p>
+                <div class="member-id">MSSV: 25120466</div>
+                <p class="member-bio">Chuyên gia phát triển logic game.</p>
             </a>
 
-            <a href="https://about.me/tuongtran" class="member-card">
+            <a href="#" class="member-card reveal">
+                <div class="member-avatar"><i class="fas fa-gamepad"></i></div>
                 <h3 class="member-name">Nguyễn Xuân Thái Tuấn</h3>
-                <p class ="member-id">MSSV 25120462</p>
                 <p class="member-role">Game Developer</p>
-                <p class="member-bio">Chuyên gia lập trình, nhà làm game hàng đầu thế giới.</p>
+                <div class="member-id">MSSV: 25120462</div>
+                <p class="member-bio">Thiết kế màn chơi và trải nghiệm.</p>
             </a>
 
-            <a href="https://chithanh-07.github.io/ASM-ChiThanh/" class="member-card">
+            <a href="https://chithanh-07.github.io/ASM-ChiThanh/" target="_blank" class="member-card reveal">
+                <div class="member-avatar"><i class="fas fa-gamepad"></i></div>
                 <h3 class="member-name">Nguyễn Chí Thành</h3>
-                <p class ="member-id">MSSV 25120438</p>
                 <p class="member-role">Game Developer</p>
-                <p class="member-bio">Chuyên gia lập trình, nhà làm game hàng đầu thế giới.</p>
+                <div class="member-id">MSSV: 25120438</div>
+                <p class="member-bio">Xây dựng hệ thống gameplay.</p>
             </a>
 
-            <a href="https://sites.google.com/view/nguyenngocvu/trang-ch%E1%BB%A7" class="member-card">
-                <h3 class="member-name">Nguyễn Xuân Thái Tuấn</h3>
-                <p class ="member-id">MSSV 25120474</p>
+            <a href="https://sites.google.com/view/nguyenngocvu" target="_blank" class="member-card reveal">
+                <div class="member-avatar"><i class="fas fa-gamepad"></i></div>
+                <h3 class="member-name">Nguyễn Ngọc Vũ</h3>
                 <p class="member-role">Game Developer</p>
-                <p class="member-bio">Chuyên gia lập trình, nhà làm game hàng đầu thế giới.</p>
+                <div class="member-id">MSSV: 25120474</div>
+                <p class="member-bio">Thiết kế đồ họa và môi trường game.</p>
             </a>
 
-            <a href="https://lehoquocthinhprofile.netlify.app/" class="member-card">
+            <a href="https://lehoquocthinhprofile.netlify.app/" target="_blank" class="member-card reveal">
+                <div class="member-avatar"><i class="fas fa-gamepad"></i></div>
                 <h3 class="member-name">Lê Hồ Quốc Thịnh</h3>
-                <p class ="member-id">MSSV 25120442</p>
-                <p class="member-role">Nhóm phó / Game Developer</p>
-                <p class="member-bio">Chuyên gia lập trình, nhà làm game hàng đầu thế giới.</p>
+                <p class="member-role">Game Developer</p>
+                <div class="member-id">MSSV: 25120442</div>
+                <p class="member-bio">Kiểm thử và tối ưu hóa game.</p>
             </a>
 
-            <a href="https://thang123kkk.github.io/HoSoCuaThang/" class="member-card">
+            <a href="https://thang123kkk.github.io/HoSoCuaThang/" target="_blank" class="member-card reveal">
+                <div class="member-avatar"><i class="fas fa-code"></i></div>
                 <h3 class="member-name">Đỗ Quang Thắng</h3>
-                <p class ="member-id">MSSV 25120436</p>
                 <p class="member-role">Web Developer</p>
-                <p class="member-bio">Chuyên gia làm web, nhà thiết kế website hàng đầu thế giới.</p>
+                <div class="member-id">MSSV: 25120436</div>
+                <p class="member-bio">Lập trình giao diện và hiệu ứng website.</p>
             </a>
-
 
         </div>
     </div>
 
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Fair Game Store</h3>
+                <p>Uy tín tạo nên thương hiệu.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p>Email: team@fairgame.vn</p>
+            </div>
+            <div class="footer-section">
+                <h3>Kết nối</h3>
+                <div class="socials">
+                    <i class="fab fa-facebook"></i>
+                    <i class="fab fa-github"></i>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">&copy; 2025 Fair Game Team</div>
+    </footer>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Giỏ hàng</h3>
+            <button onclick="toggleCart()" class="close-btn">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <p>Tổng tiền: <span id="cartTotal">$0.00</span></p>
+            <button class="checkout-btn" onclick="openCheckout()">Thanh toán</button>
+        </div>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCheckout()">&times;</span>
+            <h2>Thanh toán</h2>
+            <p>Điền thông tin nhận key:</p>
+            <form onsubmit="processPayment(event)">
+                <input type="text" placeholder="Họ tên" required class="input-field">
+                <input type="email" placeholder="Email" required class="input-field">
+                <div class="payment-summary">Tổng: <span id="paymentTotal">$0.00</span></div>
+                <button type="submit" class="pay-btn">Xác nhận</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

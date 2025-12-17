@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fair Game Store</title>
+    <title>Game Độc Quyền | Fair Game Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -13,85 +14,116 @@
         <div class="logo">FAIR GAME</div>
         <nav>
             <a href="index.html">Trang chủ</a>
-            
             <a href="docquyen.html" class="active">Game độc quyền</a>
             <a href="aboutus.html">About us</a>
         </nav>
-        <div class="cart-icon" onclick="toggleCart()">
-            <i class="fas fa-shopping-cart"></i>
-            <span id="cart-count">0</span>
+
+        <div class="header-right">
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cart-count">0</span>
+            </div>
+            <div class="user-box" id="userBox">
+                <a href="login.html">Đăng nhập</a>
+            </div>
         </div>
     </header>
 
-    <section class="hero">
-        <h1>Chào mừng đến với Fair Games</h1>
+    <section class="hero" style="height: 50vh; margin-bottom: 30px;">
+        <div class="hero-content">
+            <h1>KHO GAME ĐỘC QUYỀN</h1>
+            <p>Những tựa game chỉ có thể tìm thấy tại Fair Game Store</p>
+        </div>
     </section>
 
     <div class="container">
-<div class="container">
         
-        <div class="section-header">
-            <h2 style="border-left: 4px solid #e74c3c; padding-left: 10px; color: white; margin: 0;">Hot Games</h2>
+        <div class="section-header reveal">
+            <h2 style="border-left: 4px solid #e74c3c; padding-left: 10px; color: white; margin: 0;">DANH SÁCH GAME</h2>
             
             <div class="search-wrapper">
-                <input type="text" id="searchInput" placeholder="Nhập tên game cần tìm..." onkeyup="searchGame()">
+                <input type="text" id="searchInput" placeholder="Tìm game độc quyền..." onkeyup="searchGame()">
                 <i class="fas fa-search search-icon"></i>
             </div>
         </div>
-        <div class="product-grid" id="gameGrid">
-        </div>
-    </div>
 
         <div class="product-grid">
             
-            <div class="product-card">
-                <a href="games/game1.html">
-                    <img src="images/slayer.png" alt="Ace Slayer">
-                </a>
+            <div class="product-card reveal">
+                <div class="badge hot">HOT</div>
+                <div class="card-img-wrapper">
+                    <a href="games/game1.html">
+                        <img src="images/slayer.png" alt="Ace Slayer">
+                    </a>
+                </div>
                 <h3>Ace Slayer</h3>
                 <p class="genre">Action / RPG</p>
                 <p class="price">Free</p>
-                <button onclick="addToCart('Ace Slayer', 0, 'images/slayer.png')">Thêm vào giỏ hàng</button>
+                <button onclick="addToCart('Ace Slayer', 0, 'images/slayer.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card">
-
-                <a href="games/game2.html">
-                    <img src="images/bunny.png" alt="Bunny Adventure">
-                </a>
-
+            <div class="product-card reveal">
+                <div class="card-img-wrapper">
+                    <a href="games/game2.html">
+                        <img src="images/bunny.png" alt="Bunny Adventure">
+                    </a>
+                </div>
                 <h3>Bunny Adventure</h3>
                 <p class="genre">Adventure</p>
                 <p class="price">Free</p>
-                <button onclick="addToCart('Bunny Adventure', 0, 'images/bunny.png')">Thêm vào giỏ hàng</button>
+                <button onclick="addToCart('Bunny Adventure', 0, 'images/bunny.png')">Thêm vào giỏ</button>
             </div>
 
-             <div class="product-card">
-                <img src="images/earth2130.png" alt="Earth 2130">
+             <div class="product-card reveal">
+                <div class="card-img-wrapper">
+                    <img src="images/earth2130.png" alt="Earth 2130">
+                </div>
                 <h3>Earth 2130</h3>
                 <p class="genre">Sci-Fi Strategy</p>
                 <p class="price">Free</p>
-                <button onclick="addToCart('Earth 2130', 0, 'images/earth2130.png')">Thêm vào giỏ hàng</button>
+                <button onclick="addToCart('Earth 2130', 0, 'images/earth2130.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card">
-                <img src="images/ufo.png" alt="UFO Attack">
+            <div class="product-card reveal">
+                <div class="card-img-wrapper">
+                    <img src="images/ufo.png" alt="UFO Attack">
+                </div>
                 <h3>UFO Attack</h3>
                 <p class="genre">Arcade</p>
                 <p class="price">Free</p>
-                <button onclick="addToCart('UFO Attack', 0, 'images/ufo.png')">Thêm vào giỏ hàng</button>
+                <button onclick="addToCart('UFO Attack', 0, 'images/ufo.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card">
-                <img src="images/apple.png" alt="Apple Collector">
+            <div class="product-card reveal">
+                <div class="card-img-wrapper">
+                    <img src="images/apple.png" alt="Apple Collector">
+                </div>
                 <h3>Apple Collector</h3>
                 <p class="genre">Casual</p>
                 <p class="price">Free</p>
-                <button onclick="addToCart('Apple Collector', 0, 'images/apple.png')">Thêm vào giỏ hàng</button>
+                <button onclick="addToCart('Apple Collector', 0, 'images/apple.png')">Thêm vào giỏ</button>
             </div>
 
         </div>
     </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Fair Game Store</h3>
+                <p>Nơi cung cấp game bản quyền uy tín.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p>Email: hotro@fairgame.vn</p>
+            </div>
+            <div class="footer-section">
+                <h3>Chính sách</h3>
+                <p><a href="#">Điều khoản</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">&copy; 2025 Fair Games</div>
+    </footer>
 
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
@@ -120,6 +152,8 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

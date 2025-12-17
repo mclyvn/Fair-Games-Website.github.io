@@ -204,7 +204,7 @@ window.searchGame = function() {
     for (let i = 0; i < cards.length; i++) {
         let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
         if (title.includes(input)) {
-            cards[i].style.display = "flex"; 
+            cards[i].style.display = ""; 
         } else {
             cards[i].style.display = "none";
         }
@@ -250,7 +250,7 @@ function reveal() {
     for (var i = 0; i < reveals.length; i++) {
         var windowheight = window.innerHeight;
         var revealtop = reveals[i].getBoundingClientRect().top;
-        var revealpoint = 100; // Khoảng cách từ dưới lên để bắt đầu hiện
+        var revealpoint = 50; // Khoảng cách từ dưới lên để bắt đầu hiện
 
         if (revealtop < windowheight - revealpoint) {
             reveals[i].classList.add('active');

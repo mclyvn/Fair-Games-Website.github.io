@@ -18,9 +18,14 @@
             <a href="aboutus.html" target="_blank">About us</a>
 
         </nav>
+
+        
         <div class="cart-icon" onclick="toggleCart()">
             <i class="fas fa-shopping-cart"></i>
             <span id="cart-count">0</span>
+        </div>
+        <div class="user-box" id="userBox">
+            <a href="login.html">Đăng nhập</a>
         </div>
     </header>
 
@@ -145,27 +150,12 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="script.js"></script>
+
+
 </body>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA7YRuDHYvWx5FJa7emMmEmZpbSbuCjTgA",
-    authDomain: "fair-games-8769a.firebaseapp.com",
-    projectId: "fair-games-8769a",
-    storageBucket: "fair-games-8769a.firebasestorage.app",
-    messagingSenderId: "984853931454",
-    appId: "1:984853931454:web:6aac722bfe1a24d53f05ef"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const database = getDatabase(app);
-
-  console.log("🔥 Firebase đã kết nối thành công");
-</script>
 
 </html>

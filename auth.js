@@ -68,21 +68,34 @@ if (submitBtn) {
     updateUI();
   });
 
+  // ... (Phần đầu file giữ nguyên) ...
+
   // --- CÁC HÀM HỖ TRỢ (Chỉ dùng trong trang Login) ---
   function updateUI() {
-    showMsg("");
+    showMsg(""); // Xóa thông báo lỗi cũ
+    
     if (isLoginMode) {
+      // Chế độ ĐĂNG NHẬP
       titleEl.innerText = "Đăng nhập";
-      submitBtn.innerText = "Đăng nhập";
+      
+      // 👇 QUAN TRỌNG: Dùng innerHTML để giữ lại icon + Chữ thường
+      submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng nhập';
+      
       switchText.innerText = "Chưa có tài khoản?";
       switchBtn.innerText = "Đăng ký ngay";
     } else {
+      // Chế độ ĐĂNG KÝ
       titleEl.innerText = "Đăng ký tài khoản";
-      submitBtn.innerText = "Đăng ký";
+      
+      // 👇 QUAN TRỌNG: Dùng innerHTML để giữ lại icon + Chữ thường
+      submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Đăng ký';
+      
       switchText.innerText = "Đã có tài khoản?";
       switchBtn.innerText = "Đăng nhập ngay";
     }
   }
+
+// ... (Phần còn lại giữ nguyên) ...
 
   function handleLogin(email, password) {
     signInWithEmailAndPassword(auth, email, password)

@@ -215,24 +215,25 @@ window.searchGame = function() {
 function updateUserBox(email) {
     const userBox = document.getElementById("userBox");
     
-    // Kiểm tra xem người dùng đang đứng ở đâu?
-    // Nếu đường dẫn có chữ "/games/", nghĩa là đang ở trong thư mục game -> cần lùi ra ngoài (../)
     const isInGameFolder = window.location.pathname.includes("/games/");
     const pathPrefix = isInGameFolder ? "../" : "";
 
-    // Tìm đoạn này trong hàm updateUserBox
-if (email) {
-    // Sửa dòng này: Thêm thẻ <a href="profile.html"> bao quanh email
-    userBox.innerHTML = `
-        <a href="profile.html" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-right: 10px;">
-            <i class="fas fa-user-circle"></i> ${email}
-        </a>
-        <button onclick="logout()">Đăng xuất</button>
-    `;
-}else {
-        // Nếu chưa đăng nhập -> Tự động thêm ../ nếu đang ở trang game
+    if (email) {
+        // ĐÃ ĐĂNG NHẬP
         userBox.innerHTML = `
-            <a href="${pathPrefix}login.html">Đăng nhập</a>
+            <a href="${pathPrefix}profile.html" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-right: 15px; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fas fa-user-circle" style="font-size: 1.2em;"></i> 
+                
+                <span style="text-transform: none;">${email.split('@')[0]}</span>
+            </a>
+            <button onclick="logout()" style="padding: 5px 10px; background: transparent; border: 1px solid #666; color: #ccc; cursor: pointer; border-radius: 4px;">
+                Đăng xuất
+            </button>
+        `;
+    } else {
+        // CHƯA ĐĂNG NHẬP
+        userBox.innerHTML = `
+            <a href="${pathPrefix}login.html" style="color: #fff; text-decoration: none; font-weight: bold;">Đăng nhập</a>
         `;
     }
 }
@@ -340,3 +341,26 @@ window.loadComments = function(gameId) {
         }
     }).catch((err) => console.error(err));
 };
+
+// ==========================================
+// 9. CHỨC NĂNG CLICK LOGO VỀ TRANG CHỦ
+// ==========================================
+
+const logo = document.querySelector('.logo');
+
+if (logo) {
+    // 1. Biến con trỏ chuột thành hình bàn tay khi chỉ vào Logo
+    logo.style.cursor = 'pointer'; 
+
+    // 2. Bắt sự kiện Click
+    logo.addEventListener('click', function() {
+        // Kiểm tra xem đang ở trong thư mục games hay ở ngoài
+        const isInGameFolder = window.location.pathname.includes("/games/");
+        
+        // Nếu ở trong game thì lùi ra (../), còn không thì giữ nguyên
+        const pathPrefix = isInGameFolder ? "../" : "";
+        
+        // Chuyển hướng về trang chủ
+        window.location.href = pathPrefix + "index.html";
+    });
+}

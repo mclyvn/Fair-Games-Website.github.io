@@ -1,136 +1,91 @@
-/* Import font chữ đẹp (Poppins) từ Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+/* auth.css - Đã bỏ viết hoa để chữ gọn đẹp */
 
-/* Reset mặc định */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif; /* Sử dụng font mới */
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: 'Rajdhani', sans-serif;
 }
 
 body {
-    /* Background tối màu chuyển sắc */
-    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    height: 100vh; /* Chiều cao full màn hình */
-    display: flex;
-    justify-content: center; /* Căn giữa ngang */
-    align-items: center; /* Căn giữa dọc */
+    background-color: #0b0b0b;
+    background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+    background-size: cover; background-position: center;
+    height: 100vh;
+    display: flex; justify-content: center; align-items: center;
 }
 
-/* Bao bọc bên ngoài */
 .auth-wrapper {
-    width: 100%;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
+    width: 100%; display: flex; justify-content: center; padding: 20px;
 }
 
-/* Hộp chứa form đăng nhập */
 .auth-box {
-    background: rgba(22, 33, 62, 0.9); /* Màu nền tối bán trong suốt */
-    padding: 40px 30px;
-    border-radius: 20px; /* Bo tròn góc nhiều hơn */
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5); /* Đổ bóng tạo chiều sâu */
-    width: 100%;
-    max-width: 400px; /* Độ rộng tối đa */
+    background: rgba(20, 20, 20, 0.95);
+    padding: 40px 30px; 
+    width: 100%; 
+    max-width: 420px;
+    border-radius: 10px;
+    border: 1px solid #444;
+    box-shadow: 0 0 30px rgba(231, 76, 60, 0.2);
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.1); /* Viền mờ nhẹ */
-    backdrop-filter: blur(10px); /* Hiệu ứng mờ background phía sau (nếu có ảnh nền) */
+    position: relative; overflow: hidden;
+    backdrop-filter: blur(5px);
 }
 
-/* Tiêu đề */
+.auth-box::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+    background: #e74c3c; box-shadow: 0 0 15px #e74c3c;
+}
+
+/* --- SỬA Ở ĐÂY: Bỏ text-transform --- */
 h2 {
-    color: #fff;
-    font-size: 2rem;
-    font-weight: 600;
+    color: #fff; 
+    font-size: 2.2rem;
     margin-bottom: 25px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    /* text-transform: uppercase; <-- Đã xóa dòng này */
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
 }
 
-/* Khu vực thông báo lỗi/thành công */
 #authMessage {
-    min-height: 25px;
-    margin-bottom: 20px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    /* Mặc định ẩn đi khi không có nội dung để không chiếm chỗ */
+    font-size: 1rem; font-weight: bold; margin-bottom: 15px; 
+    display: none; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 5px; color: #ff6b6b;
 }
-#authMessage:not(:empty) {
-    padding: 10px;
-    border-radius: 8px;
-    background: rgba(0,0,0,0.2);
-}
+#authMessage:not(:empty) { display: block; }
 
-/* Ô nhập liệu (Input) */
 input {
-    width: 100%;
-    padding: 15px 20px;
-    margin-bottom: 20px;
-    background: #0f3460; /* Màu nền input tối hơn nền hộp */
-    border: 2px solid transparent; /* Viền trong suốt */
-    outline: none;
-    color: #fff; /* Chữ màu trắng */
-    border-radius: 30px; /* Bo tròn kiểu viên thuốc */
-    font-size: 1rem;
-    transition: 0.3s all ease; /* Hiệu ứng chuyển động mượt */
+    width: 100%; padding: 12px 15px; margin-bottom: 20px;
+    background: #111; border: 1px solid #444;
+    color: #fff; font-size: 1.1em;
+    border-radius: 4px; outline: none; transition: 0.3s;
 }
-
-/* Khi click vào ô nhập liệu */
 input:focus {
-    border-color: #e94560; /* Đổi màu viền sang màu hồng neon */
-    box-shadow: 0 0 15px rgba(233, 69, 96, 0.3); /* Phát sáng nhẹ */
+    border-color: #e74c3c; box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
 }
+input::placeholder { color: #666; font-style: italic; }
 
-/* Placeholder (chữ gợi ý bên trong input) */
-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-/* Nút bấm (Button) */
-button {
-    width: 100%;
-    padding: 15px;
-    background: #e94560; /* Màu hồng neon nổi bật */
-    border: none;
-    border-radius: 30px;
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 600;
+/* --- SỬA CẢ NÚT BẤM --- */
+#submitBtn {
+    width: 100%; padding: 12px;
+    background: #e74c3c; color: #fff;
+    font-size: 1.2em; font-weight: bold;
+    border: none; border-radius: 4px;
     cursor: pointer;
-    transition: 0.3s all ease;
-    text-transform: uppercase;
-    box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+    /* text-transform: uppercase; <-- Đã xóa dòng này */
+    transition: 0.3s; margin-top: 10px;
+}
+#submitBtn:hover {
+    background: #c0392b; box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+    transform: translateY(-2px);
 }
 
-/* Khi di chuột vào nút */
-button:hover {
-    background: #ff6b81; /* Sáng lên một chút */
-    transform: translateY(-3px); /* Nổi lên nhẹ */
-    box-shadow: 0 8px 20px rgba(233, 69, 96, 0.6);
+.switch { margin-top: 25px; color: #aaa; font-size: 0.95em; }
+#switchBtn {
+    color: #e74c3c; font-weight: bold; cursor: pointer;
+    margin-left: 5px; text-decoration: none; transition: 0.3s;
 }
-/* Khi bấm nút xuống */
-button:active {
-    transform: translateY(-1px);
-}
+#switchBtn:hover { color: #fff; text-shadow: 0 0 10px #e74c3c; text-decoration: underline; }
 
-/* Phần chuyển đổi Đăng ký/Đăng nhập */
-.switch {
-    margin-top: 25px;
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.7);
+.home-link {
+    display: inline-block; margin-top: 20px; font-size: 0.9em;
+    color: #666; text-decoration: none; transition: 0.3s;
 }
-
-.switch span {
-    color: #e94560; /* Màu chữ nhấn */
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 8px;
-    transition: 0.3s;
-}
-
-.switch span:hover {
-    color: #ff6b81;
-    text-decoration: underline;
-}
+.home-link:hover { color: #e74c3c; }

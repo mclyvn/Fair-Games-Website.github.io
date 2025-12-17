@@ -130,7 +130,44 @@
         </div>
     </div>
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+<div id="paymentModal" class="modal">
+    <div class="modal-content payment-box">
+        <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+        
+        <h2 style="color: #e74c3c; text-align: center; margin-bottom: 20px;">THANH TOÁN</h2>
+        
+        <div class="payment-container">
+            <div class="qr-section">
+                <p>Quét mã để thanh toán:</p>
+                <img id="qrImage" src="" alt="QR Code" class="qr-img">
+                <p style="font-size: 0.9em; color: #888; margin-top: 10px;">
+                    Nội dung: <b id="transferContent" style="color: #fff;">FWG123456</b>
+                </p>
+            </div>
 
+            <div class="info-section">
+                <h3>Thông tin đơn hàng</h3>
+                <p>Tổng tiền: <span id="payAmount" style="color: #e74c3c; font-weight: bold; font-size: 1.5em;">0đ</span></p>
+                
+                <div class="bank-info">
+                    <p>Ngân hàng: <b>MB Bank</b></p>
+                    <p>Chủ TK: <b>DO QUANG THANG</b></p>
+                    <p>Số TK: <b>0357876625</b></p>
+                </div>
+
+                <hr style="border-color: #333; margin: 15px 0;">
+
+                <p style="font-style: italic; font-size: 0.9em; color: #aaa;">
+                    Lưu ý: Đây là mô phỏng. Sau khi quét mã (hoặc giả vờ quét), hãy bấm nút xác nhận bên dưới.
+                </p>
+
+                <button class="confirm-pay-btn" onclick="confirmPayment()">
+                    <i class="fas fa-check-circle"></i> TÔI ĐÃ THANH TOÁN
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
     <script type="module">
         import { auth, db } from "./firebase.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -236,6 +273,7 @@
                 }
             });
         }
+
     </script>
     
     <script type="module" src="script.js"></script>

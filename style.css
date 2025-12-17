@@ -355,3 +355,192 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
 .user-avatar:hover .avatar-overlay {
     opacity: 1;
 }
+/* --- HIỆU ỨNG THÊM GIỎ HÀNG --- */
+
+/* 1. Hình ảnh bay (Được tạo ra bằng JS) */
+.fly-item {
+    position: fixed;
+    z-index: 9999;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #e74c3c;
+    transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1); /* Bay cong mềm mại */
+    pointer-events: none; /* Không chặn chuột click */
+}
+
+/* 2. Thông báo nhỏ (Toast) */
+#toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #27ae60; /* Màu xanh lá thành công */
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 16px;
+    position: fixed;
+    z-index: 10000;
+    right: 30px;
+    bottom: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    display: flex; align-items: center; gap: 10px;
+}
+
+#toast.show {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s; /* Hiện ra 0.5s, biến mất sau 2.5s */
+}
+
+/* Hiệu ứng rung giỏ hàng khi nhận đồ */
+@keyframes shakeCart {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+    75% { transform: rotate(-5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.cart-shake {
+    animation: shakeCart 0.4s ease-in-out;
+    color: #e74c3c !important; /* Đổi màu đỏ báo hiệu */
+}
+
+/* Animation cho Toast */
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+/* =========================================
+   MODAL THANH TOÁN (CYBERPUNK STYLE)
+========================================= */
+
+/* 1. Căn giữa Modal */
+.modal {
+    /* ... Giữ nguyên các thuộc tính cơ bản cũ ... */
+    display: none; /* Mặc định ẩn */
+    position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* Nền tối hơn */
+    backdrop-filter: blur(5px); /* Hiệu ứng mờ nền sau */
+    
+    /* 👇 QUAN TRỌNG: Dùng Flexbox để căn giữa */
+    /* Lưu ý: JS sẽ set lại thành 'display: flex' khi mở */
+    justify-content: center;
+    align-items: center;
+    padding: 20px; /* Khoảng cách an toàn cho mobile */
+}
+
+/* 2. Hộp nội dung chính */
+.payment-box {
+    background: linear-gradient(145deg, #1a1a1a, #0d0d0d); /* Nền gradient tối */
+    width: 100%; max-width: 800px; /* Rộng hơn chút */
+    border-radius: 15px;
+    border: 2px solid #e74c3c; /* Viền đỏ neon */
+    box-shadow: 0 0 30px rgba(231, 76, 60, 0.3), inset 0 0 10px rgba(231, 76, 60, 0.1); /* Bóng neon trong ngoài */
+    position: relative;
+    overflow: hidden;
+    animation: modalPopup 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Hiệu ứng bật lên */
+}
+@keyframes modalPopup {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Thanh sáng trang trí trên đầu */
+.payment-box::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+    background: #e74c3c; box-shadow: 0 0 20px #e74c3c;
+}
+
+/* Nút đóng (X) */
+.close-modal {
+    position: absolute; top: 15px; right: 20px;
+    color: #888; font-size: 30px; font-weight: bold; cursor: pointer; transition: 0.3s;
+    z-index: 10;
+}
+.close-modal:hover { color: #e74c3c; text-shadow: 0 0 10px #e74c3c; }
+
+.payment-header h2 {
+    text-align: center; margin: 25px 0 30px;
+    color: #fff; font-size: 2.2em; text-transform: uppercase; letter-spacing: 3px;
+    text-shadow: 0 0 15px rgba(231, 76, 60, 0.7);
+}
+
+/* Bố cục 2 cột */
+.payment-container {
+    display: flex; gap: 40px; padding: 0 30px 40px;
+}
+
+/* --- CỘT TRÁI: QR CODE --- */
+.qr-section {
+    flex: 1; text-align: center;
+    background: rgba(255, 255, 255, 0.05); /* Nền kính mờ */
+    padding: 20px; border-radius: 10px;
+    border: 1px solid #333;
+}
+.qr-section p { color: #ccc; margin-bottom: 15px; font-size: 1.1em; }
+
+.qr-wrapper {
+    background: #fff; padding: 10px; display: inline-block;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2); /* Bóng sáng cho QR */
+}
+.qr-img { width: 100%; max-width: 220px; display: block; }
+
+.transfer-note { margin-top: 20px; font-size: 1em; color: #aaa; }
+.transfer-code {
+    display: block; margin-top: 5px;
+    color: #f1c40f; /* Màu vàng nổi bật */
+    font-size: 1.4em; font-weight: bold; letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+}
+
+/* --- CỘT PHẢI: THÔNG TIN --- */
+.info-section {
+    flex: 1.3; display: flex; flex-direction: column; justify-content: center; color: #ccc;
+}
+.info-section h3 { color: #fff; font-size: 1.5em; margin-bottom: 20px; text-transform: uppercase; }
+.total-price {
+    color: #e74c3c; font-weight: bold; font-size: 1.8em;
+    text-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
+}
+
+/* Thẻ thông tin ngân hàng */
+.bank-card {
+    background: linear-gradient(45deg, #222, #2a2a2a);
+    padding: 20px; border-radius: 8px; margin: 20px 0;
+    border-left: 5px solid #e74c3c; /* Viền trái đỏ */
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+}
+.bank-card p { margin: 8px 0; font-size: 1.1em; }
+.bank-card b { color: #fff; letter-spacing: 1px; }
+
+.confirm-pay-btn {
+    width: 100%; padding: 18px;
+    background: linear-gradient(45deg, #27ae60, #2ecc71); /* Gradient xanh lá */
+    color: white; border: none; border-radius: 8px;
+    font-size: 1.2em; font-weight: bold; cursor: pointer;
+    text-transform: uppercase; letter-spacing: 2px;
+    transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+    margin-top: auto; /* Đẩy xuống cuối */
+}
+.confirm-pay-btn:hover {
+    background: linear-gradient(45deg, #219150, #27ae60);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(39, 174, 96, 0.6);
+}
+
+/* Responsive cho điện thoại */
+@media (max-width: 768px) {
+    .payment-container { flex-direction: column; gap: 30px; }
+    .qr-section, .info-section { flex: auto; }
+    .payment-box { margin: 20px; width: auto; }
+}

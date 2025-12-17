@@ -167,6 +167,7 @@
         </div>
     </footer>
 
+
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
             <h3>Giỏ hàng</h3>
@@ -180,17 +181,46 @@
     </div>
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
 
-    <div id="checkoutModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeCheckout()">&times;</span>
-            <h2>Thanh toán</h2>
-            <p>Điền thông tin để nhận key game qua email</p>
-            <form onsubmit="processPayment(event)">
-                <input type="text" placeholder="Họ tên" required class="input-field">
-                <input type="email" placeholder="Email nhận key" required class="input-field">
-                <div class="payment-summary">Tổng tiền: <span id="paymentTotal">$0.00</span></div>
-                <button type="submit" class="pay-btn">Xác nhận thanh toán</button>
-            </form>
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-box">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            
+            <div class="payment-header">
+                <h2>THANH TOÁN ĐƠN HÀNG</h2>
+            </div>
+            
+            <div class="payment-container">
+                <div class="qr-section">
+                    <p>Quét mã bằng ứng dụng ngân hàng:</p>
+                    <div class="qr-wrapper">
+                        <img id="qrImage" src="" alt="QR Code" class="qr-img">
+                    </div>
+                    <div class="transfer-note">
+                        Nội dung chuyển khoản bắt buộc:
+                        <span id="transferContent" class="transfer-code">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Thông tin thanh toán</h3>
+                    <p>Tổng tiền cần thanh toán:</p>
+                    <p id="payAmount" class="total-price">0đ</p>
+                    
+                    <div class="bank-card">
+                        <p>Ngân hàng: <b>MB Bank</b></p>
+                        <p>Chủ tài khoản: <b>DO QUANG THANG</b></p>
+                        <p>Số tài khoản: <b style="color: #f1c40f; font-size: 1.2em;">0357876625</b></p>
+                    </div>
+
+                    <p style="font-style: italic; font-size: 0.9em; color: #888; margin-bottom: 20px;">
+                        <i class="fas fa-info-circle"></i> Lưu ý: Hệ thống sẽ tự động xử lý sau khi bạn chuyển khoản thành công. Vui lòng không tắt trình duyệt.
+                    </p>
+
+                    <button class="confirm-pay-btn" onclick="confirmPayment()">
+                        <i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -198,5 +228,4 @@
     <script type="module" src="auth.js"></script>
     <script type="module" src="script.js"></script>
 </body>
-
 </html>

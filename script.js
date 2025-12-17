@@ -1,7 +1,8 @@
 // 1. IMPORT CÁC THƯ VIỆN CẦN THIẾT
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+// 👇 Đã thêm 'push' vào đây để chức năng thanh toán hoạt động
+import { ref, set, get, child, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // 2. KHỞI TẠO BIẾN TOÀN CỤC
 let cart = []; 
@@ -10,22 +11,14 @@ let currentUser = null;
 // 3. LẮNG NGHE TRẠNG THÁI ĐĂNG NHẬP
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // --- ĐÃ ĐĂNG NHẬP ---
         currentUser = user;
-        console.log("User:", user.email);
         updateUserBox(user.email); 
-        loadCartFromFirebase(user.uid); // Tải giỏ hàng về
+        loadCartFromFirebase(user.uid);
     } else {
-        // --- KHÁCH VÃNG LAI (CHƯA LOGIN) ---
         currentUser = null;
-        console.log("Chưa đăng nhập");
         updateUserBox(null);
-        
-        // QUAN TRỌNG: Xóa sạch giỏ hàng trong RAM và vẽ lại giao diện trống
         cart = []; 
         window.renderCart(); 
-        
-        // Cập nhật số lượng về 0 ngay lập tức
         const countLabel = document.getElementById('cart-count');
         if(countLabel) countLabel.innerText = "0";
     }
@@ -45,7 +38,6 @@ function loadCartFromFirebase(userId) {
 }
 
 function saveData() {
-    // Chỉ lưu nếu đã đăng nhập
     if (currentUser) {
         set(ref(db, `carts/${currentUser.uid}`), cart)
             .catch((err) => console.error("Lỗi lưu:", err));
@@ -53,8 +45,6 @@ function saveData() {
 }
 
 // 5. CÁC CHỨC NĂNG GIAO DIỆN
-
-// Hàm vẽ giỏ hàng
 window.renderCart = function() {
     const container = document.getElementById('cartItems');
     const countLabel = document.getElementById('cart-count');
@@ -65,7 +55,6 @@ window.renderCart = function() {
     container.innerHTML = '';
     let total = 0;
 
-    // Nếu chưa đăng nhập hoặc giỏ rỗng
     if (!currentUser || cart.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; margin-top: 30px; color: #888;">
@@ -74,7 +63,6 @@ window.renderCart = function() {
             </div>`;
     }
 
-    // Vẫn chạy vòng lặp để tính tiền (trường hợp đã login)
     cart.forEach((item, index) => {
         total += item.price;
         let priceText = item.price === 0 ? "Free" : `$${item.price}`;
@@ -95,25 +83,77 @@ window.renderCart = function() {
     if(totalLabel) totalLabel.innerText = '$' + total.toFixed(2);
 };
 
-// --- HÀM THÊM VÀO GIỎ (SỬA ĐỔI QUAN TRỌNG) ---
-window.addToCart = function(name, price, image) {
-    // 1. Kiểm tra: Nếu CHƯA đăng nhập thì chặn luôn
-    if (!currentUser) {
-        // Hiện hộp thoại hỏi người dùng
-        if (confirm("⚠️ Bạn cần đăng nhập để mua game này!\nBấm OK để đến trang đăng nhập.")) {
-            window.location.href = "login.html";
-        }
-        return; // Dừng hàm tại đây, không cho thêm vào giỏ
+// Tạo Toast thông báo
+document.body.insertAdjacentHTML('beforeend', `<div id="toast"><i class="fas fa-check-circle"></i> <span id="toast-msg">Đã thêm vào giỏ!</span></div>`);
+
+window.addToCart = function(name, price, imageSrc) {
+    const existingItem = cart.find(item => item.name === name);
+    if (existingItem) {
+        showToast(`"${name}" đã có trong giỏ hàng rồi!`, true);
+        return;
     }
 
-    // 2. Nếu đã đăng nhập thì chạy bình thường
-    cart.push({ name, price, image });
+    cart.push({ name, price, image: imageSrc });
     saveData();
-    window.renderCart();
+    window.renderCart(); 
     
-    const sidebar = document.getElementById('cartSidebar');
-    if (sidebar && !sidebar.classList.contains('open')) window.toggleCart();
+    // Hiệu ứng Bay
+    const productImg = document.querySelector('.detail-img'); 
+    const cartIcon = document.querySelector('.cart-icon');
+
+    if (productImg && cartIcon) {
+        const flyImg = productImg.cloneNode();
+        flyImg.classList.add('fly-item');
+        document.body.appendChild(flyImg);
+
+        const imgRect = productImg.getBoundingClientRect();
+        const cartRect = cartIcon.getBoundingClientRect();
+
+        flyImg.style.top = imgRect.top + "px";
+        flyImg.style.left = imgRect.left + "px";
+        flyImg.style.width = imgRect.width + "px";
+        flyImg.style.height = imgRect.height + "px";
+
+        setTimeout(() => {
+            flyImg.style.top = (cartRect.top + 10) + "px";
+            flyImg.style.left = (cartRect.left + 10) + "px";
+            flyImg.style.width = "20px";
+            flyImg.style.height = "20px";
+            flyImg.style.opacity = "0.5";
+        }, 50);
+
+        setTimeout(() => {
+            flyImg.remove(); 
+            cartIcon.classList.add('cart-shake');
+            setTimeout(() => cartIcon.classList.remove('cart-shake'), 400);
+            showToast(`Đã thêm "${name}" thành công!`);
+        }, 800);
+    } else {
+        showToast(`Đã thêm "${name}" thành công!`);
+        if(cartIcon) {
+            cartIcon.classList.add('cart-shake');
+            setTimeout(() => cartIcon.classList.remove('cart-shake'), 400);
+        }
+    }
 };
+
+function showToast(message, isError = false) {
+    const toast = document.getElementById("toast");
+    const msgSpan = document.getElementById("toast-msg");
+    
+    msgSpan.innerText = message;
+    if (isError) {
+        toast.style.backgroundColor = "#e74c3c";
+        toast.querySelector('i').className = "fas fa-exclamation-circle";
+    } else {
+        toast.style.backgroundColor = "#27ae60";
+        toast.querySelector('i').className = "fas fa-check-circle";
+    }
+    toast.className = "show";
+    setTimeout(function(){ 
+        toast.className = toast.className.replace("show", ""); 
+    }, 3000);
+}
 
 window.removeFromCart = function(index) {
     cart.splice(index, 1);
@@ -121,79 +161,104 @@ window.removeFromCart = function(index) {
     window.renderCart();
 };
 
-// Hàm mở/đóng giỏ hàng
 window.toggleCart = function() {
-    // Tùy chọn: Nếu muốn chặt chẽ hơn, chưa đăng nhập thì không cho mở giỏ hàng luôn
-    // if (!currentUser) { alert("Vui lòng đăng nhập!"); return; }
-    
     document.getElementById('cartSidebar').classList.toggle('open');
     document.getElementById('overlay').classList.toggle('active');
 };
 
-// 6. XỬ LÝ THANH TOÁN
+// ==========================================
+// 10. CHỨC NĂNG THANH TOÁN QR (VIETQR) - CHÍNH THỨC
+// ==========================================
+
+const MY_BANK = {
+    BANK_ID: 'MB', 
+    ACCOUNT_NO: '0357876625', 
+    ACCOUNT_NAME: 'DO QUANG THANG', 
+    TEMPLATE: 'compact2' 
+};
+
+// 1. Mở Modal Thanh Toán & Tạo QR
 window.openCheckout = function() {
-    if(cart.length === 0) { alert("Giỏ hàng trống!"); return; }
-    
-    // Kiểm tra lại lần nữa cho chắc
+    if (cart.length === 0) {
+        alert("Giỏ hàng đang trống!");
+        return;
+    }
     if (!currentUser) {
-        alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        window.location.reload();
+        alert("Vui lòng đăng nhập để thanh toán!");
+        window.location.href = "login.html";
         return;
     }
 
-    document.getElementById('paymentTotal').innerText = '$' + cart.reduce((sum, item) => sum + item.price, 0).toFixed(2);
-    document.getElementById('checkoutModal').style.display = 'flex';
+    const modal = document.getElementById('paymentModal');
+    const qrImg = document.getElementById('qrImage');
+    const payAmount = document.getElementById('payAmount');
+    const transferContent = document.getElementById('transferContent');
+
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const orderId = 'FAIR' + Math.floor(Math.random() * 10000);
+
+    payAmount.innerText = `$${total.toFixed(2)} (Khoảng ${(total * 24000).toLocaleString()} VND)`;
+    transferContent.innerText = orderId;
+
+    const vndAmount = total * 24000;
+    const qrSource = `https://img.vietqr.io/image/${MY_BANK.BANK_ID}-${MY_BANK.ACCOUNT_NO}-${MY_BANK.TEMPLATE}.png?amount=${vndAmount}&addInfo=${orderId}&accountName=${encodeURIComponent(MY_BANK.ACCOUNT_NAME)}`;
+    
+    qrImg.src = qrSource;
+
+    // 👇 Đã sửa thành 'flex' để căn giữa
+    modal.style.display = "flex"; 
     window.toggleCart(); 
 };
 
-window.closeCheckout = function() {
-    document.getElementById('checkoutModal').style.display = 'none';
+// 2. Đóng Modal
+window.closePaymentModal = function() {
+    document.getElementById('paymentModal').style.display = "none";
 };
 
-window.processPayment = function(e) {
-    e.preventDefault();
-    
-    if (!currentUser) return; // Chắc chắn đã đăng nhập
+// 3. Xử lý khi bấm "Tôi đã thanh toán"
+window.confirmPayment = function() {
+    const btn = document.querySelector('.confirm-pay-btn');
+    const originalText = btn.innerHTML;
 
-    const btn = document.querySelector('.pay-btn');
-    const originalText = btn.innerText;
-    
-    btn.innerText = "Đang xử lý...";
-    btn.style.background = "#777";
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG KIỂM TRA...';
+    btn.style.opacity = "0.7";
     btn.disabled = true;
-    
-    // --- ĐOẠN MỚI: LƯU VÀO LỊCH SỬ MUA HÀNG ---
-    const orderData = {
-        items: cart, // Lưu danh sách game đang có trong giỏ
-        total: cart.reduce((sum, item) => sum + item.price, 0),
-        date: new Date().toLocaleString('vi-VN'),
-        customerName: document.querySelector('input[placeholder="Họ tên"]').value
-    };
 
-    // Đẩy vào nhánh: orders / ID_Của_User / [Danh sách đơn hàng]
-    push(ref(db, `orders/${currentUser.uid}`), orderData)
-    .then(() => {
-        // Sau khi lưu xong thì mới báo thành công và xóa giỏ
-        alert(`Thanh toán thành công! Game đã được thêm vào thư viện.`);
-        
-        cart = []; // Xóa giỏ hàng trong RAM
-        saveData(); // Cập nhật giỏ hàng rỗng lên Firebase (nhánh carts)
-        window.renderCart();
-        window.closeCheckout();
-        
-        btn.innerText = originalText;
-        btn.style.background = "#e74c3c";
-        btn.disabled = false;
+    setTimeout(() => {
+        const orderData = {
+            items: cart,
+            total: cart.reduce((sum, item) => sum + item.price, 0),
+            date: new Date().toLocaleString('vi-VN'),
+            paymentMethod: 'QR Transfer',
+            status: 'Completed'
+        };
 
-        // Chuyển hướng sang trang Profile để xem game vừa mua
-        window.location.href = "profile.html";
-    })
-    .catch((error) => {
-        console.error("Lỗi thanh toán:", error);
-        alert("Lỗi kết nối, vui lòng thử lại!");
-        btn.disabled = false;
-        btn.innerText = originalText;
-    });
+        push(ref(db, `orders/${currentUser.uid}`), orderData)
+        .then(() => {
+            alert("Thanh toán thành công! Cảm ơn bạn đã ủng hộ.");
+            cart = [];
+            saveData();
+            window.renderCart();
+            window.closePaymentModal();
+            
+            const isInGameFolder = window.location.pathname.includes("/games/");
+            window.location.href = isInGameFolder ? "../profile.html" : "profile.html";
+        })
+        .catch((err) => {
+            console.error(err);
+            alert("Lỗi kết nối! Nhưng cứ coi như thành công nhé ^^");
+            cart = [];
+            saveData();
+            window.renderCart();
+            window.closePaymentModal();
+        })
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.style.opacity = "1";
+            btn.disabled = false;
+        });
+
+    }, 2000);
 };
 
 // 7. TÌM KIẾM VÀ USER BOX
@@ -211,19 +276,15 @@ window.searchGame = function() {
     }
 };
 
-// Hàm cập nhật giao diện User (Góc trên phải)
 function updateUserBox(email) {
     const userBox = document.getElementById("userBox");
-    
     const isInGameFolder = window.location.pathname.includes("/games/");
     const pathPrefix = isInGameFolder ? "../" : "";
 
     if (email) {
-        // ĐÃ ĐĂNG NHẬP
         userBox.innerHTML = `
             <a href="${pathPrefix}profile.html" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-right: 15px; display: inline-flex; align-items: center; gap: 5px;">
                 <i class="fas fa-user-circle" style="font-size: 1.2em;"></i> 
-                
                 <span style="text-transform: none;">${email.split('@')[0]}</span>
             </a>
             <button onclick="logout()" style="padding: 5px 10px; background: transparent; border: 1px solid #666; color: #ccc; cursor: pointer; border-radius: 4px;">
@@ -231,7 +292,6 @@ function updateUserBox(email) {
             </button>
         `;
     } else {
-        // CHƯA ĐĂNG NHẬP
         userBox.innerHTML = `
             <a href="${pathPrefix}login.html" style="color: #fff; text-decoration: none; font-weight: bold;">Đăng nhập</a>
         `;
@@ -242,125 +302,30 @@ window.logout = function() {
     signOut(auth).then(() => location.reload()).catch((error) => console.error(error));
 };
 
-// --- HIỆU ỨNG SCROLL REVEAL (CUỘN ĐẾN ĐÂU HIỆN ĐẾN ĐÓ) ---
+// --- SCROLL REVEAL ---
 window.addEventListener('scroll', reveal);
-
 function reveal() {
     var reveals = document.querySelectorAll('.reveal');
-
     for (var i = 0; i < reveals.length; i++) {
         var windowheight = window.innerHeight;
         var revealtop = reveals[i].getBoundingClientRect().top;
-        var revealpoint = 50; // Khoảng cách từ dưới lên để bắt đầu hiện
-
+        var revealpoint = 50;
         if (revealtop < windowheight - revealpoint) {
             reveals[i].classList.add('active');
         } else {
-            reveals[i].classList.remove('active'); // Nếu muốn cuộn ngược lại thì ẩn đi (tuỳ chọn)
+            reveals[i].classList.remove('active');
         }
     }
 }
-
-// Gọi hàm 1 lần khi tải trang để hiện những cái đang thấy
 reveal();
 
-
-// ==========================================
-// 8. CHỨC NĂNG BÌNH LUẬN (COMMENT SYSTEM)
-// ==========================================
-
-// Hàm gửi bình luận
-window.postComment = function(gameId) {
-    if (!currentUser) {
-        alert("Bạn cần đăng nhập để bình luận!");
-        window.location.href = "../login.html"; // Chuyển hướng về trang login
-        return;
-    }
-
-    const input = document.getElementById('commentInput');
-    const content = input.value.trim();
-
-    if (content === "") {
-        alert("Vui lòng nhập nội dung!");
-        return;
-    }
-
-    // Tạo đối tượng bình luận
-    const newComment = {
-        user: currentUser.email,
-        content: content,
-        time: new Date().toLocaleString()
-    };
-
-    // Lưu vào Firebase: comments / gameId / [danh sách]
-    // Lưu ý: Đây là cách lưu đơn giản bằng cách lấy list cũ về rồi push list mới
-    const dbRef = ref(db);
-    get(child(dbRef, `comments/${gameId}`)).then((snapshot) => {
-        let comments = snapshot.exists() ? snapshot.val() : [];
-        if (!Array.isArray(comments)) comments = []; // Đảm bảo nó là mảng
-        
-        comments.push(newComment);
-
-        set(ref(db, `comments/${gameId}`), comments)
-            .then(() => {
-                input.value = ""; // Xóa ô nhập
-                window.loadComments(gameId); // Tải lại danh sách
-            })
-            .catch((err) => console.error(err));
-    });
-};
-
-// Hàm tải bình luận (Cần export để file html gọi được)
-window.loadComments = function(gameId) {
-    const list = document.getElementById('commentList');
-    if (!list) return;
-
-    const dbRef = ref(db);
-    get(child(dbRef, `comments/${gameId}`)).then((snapshot) => {
-        if (snapshot.exists()) {
-            const comments = snapshot.val();
-            list.innerHTML = ""; // Xóa cũ
-            
-            // Duyệt ngược để hiện comment mới nhất lên đầu
-            for (let i = comments.length - 1; i >= 0; i--) {
-                let c = comments[i];
-                let userInitial = c.user.charAt(0).toUpperCase();
-                
-                list.innerHTML += `
-                    <div class="single-comment">
-                        <div class="c-avatar">${userInitial}</div>
-                        <div style="flex: 1;">
-                            <h4 style="color: #e74c3c; margin-bottom: 5px;">${c.user} <span style="font-size:12px; color:#666; margin-left:10px;">${c.time}</span></h4>
-                            <p style="color: #ccc;">${c.content}</p>
-                        </div>
-                    </div>
-                `;
-            }
-        } else {
-            list.innerHTML = "<p style='color:#666; text-align:center'>Chưa có bình luận nào. Hãy là người đầu tiên!</p>";
-        }
-    }).catch((err) => console.error(err));
-};
-
-// ==========================================
-// 9. CHỨC NĂNG CLICK LOGO VỀ TRANG CHỦ
-// ==========================================
-
+// --- CLICK LOGO VỀ TRANG CHỦ ---
 const logo = document.querySelector('.logo');
-
 if (logo) {
-    // 1. Biến con trỏ chuột thành hình bàn tay khi chỉ vào Logo
     logo.style.cursor = 'pointer'; 
-
-    // 2. Bắt sự kiện Click
     logo.addEventListener('click', function() {
-        // Kiểm tra xem đang ở trong thư mục games hay ở ngoài
         const isInGameFolder = window.location.pathname.includes("/games/");
-        
-        // Nếu ở trong game thì lùi ra (../), còn không thì giữ nguyên
         const pathPrefix = isInGameFolder ? "../" : "";
-        
-        // Chuyển hướng về trang chủ
         window.location.href = pathPrefix + "index.html";
     });
 }

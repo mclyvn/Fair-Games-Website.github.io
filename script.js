@@ -8,6 +8,19 @@ import { ref, set, get, child, push } from "https://www.gstatic.com/firebasejs/1
 let cart = []; 
 let currentUser = null; 
 
+// Load guest cart from localStorage so non-logged users can add items
+function loadGuestCartFromLocalStorage() {
+    try {
+        const raw = localStorage.getItem('guestCart');
+        if (raw) cart = JSON.parse(raw) || [];
+    } catch (e) {
+        console.error('Failed to load guest cart:', e);
+        cart = [];
+    }
+}
+
+loadGuestCartFromLocalStorage();
+
 // 3. LẮNG NGHE TRẠNG THÁI ĐĂNG NHẬP
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -17,8 +30,9 @@ onAuthStateChanged(auth, (user) => {
     } else {
         currentUser = null;
         updateUserBox(null);
-        cart = []; 
-        window.renderCart(); 
+        // keep/restore guest cart so users can add items before login
+        loadGuestCartFromLocalStorage();
+        window.renderCart();
         const countLabel = document.getElementById('cart-count');
         if(countLabel) countLabel.innerText = "0";
     }
@@ -41,6 +55,13 @@ function saveData() {
     if (currentUser) {
         set(ref(db, `carts/${currentUser.uid}`), cart)
             .catch((err) => console.error("Lỗi lưu:", err));
+    } else {
+        // persist guest cart locally so non-logged users can keep items
+        try {
+            localStorage.setItem('guestCart', JSON.stringify(cart));
+        } catch (e) {
+            console.error('Failed to save guest cart:', e);
+        }
     }
 }
 
@@ -55,11 +76,13 @@ window.renderCart = function() {
     container.innerHTML = '';
     let total = 0;
 
-    if (!currentUser || cart.length === 0) {
+    if (cart.length === 0) {
+        const loginNote = !currentUser ? '<p style="color:#bbb; font-size:0.9em; margin-top:6px;">Đăng nhập để lưu giỏ hàng.</p>' : '';
         container.innerHTML = `
             <div style="text-align: center; margin-top: 30px; color: #888;">
                 <i class="fas fa-shopping-basket" style="font-size: 40px; margin-bottom: 10px;"></i>
                 <p>Giỏ hàng trống</p>
+                ${loginNote}
             </div>`;
     }
 

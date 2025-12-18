@@ -152,19 +152,27 @@ window.renderCart = function() {
         total += item.price;
         let priceText = item.price === 0 ? "Free" : `$${item.price}`;
         
-        // 👇 FIX LỖI ẢNH: Xóa sạch ../ hoặc ./ thừa đi
-        let cleanPath = item.image.replace(/^(\.\.\/|\.\/)+/, '');
-        
-        // Kiểm tra xem đang đứng ở đâu để tạo đường dẫn hiển thị đúng
+        // 👇👇👇 XỬ LÝ ẢNH SIÊU CỨNG (V3) 👇👇👇
+        let cleanPath = item.image;
+        // Nếu đường dẫn có chứa chữ "images/", ta chỉ lấy từ đó trở về sau
+        // Ví dụ: "../images/pic.png" -> "images/pic.png"
+        if (cleanPath.includes("images/")) {
+            cleanPath = cleanPath.substring(cleanPath.lastIndexOf("images/"));
+        }
+
+        // Kiểm tra xem đang đứng ở đâu (Dùng toLowerCase để không sợ Games hay games)
+        let currentPath = window.location.pathname.toLowerCase();
         let displayImg = cleanPath; 
-        if (window.location.pathname.includes("/games/")) { 
-            // Nếu đang ở thư mục con games/ thì lùi ra 1 cấp
+        
+        // Nếu đang ở trong thư mục con (ví dụ /games/...) thì lùi ra 1 cấp
+        if (currentPath.includes("/games/") || currentPath.includes("/games-")) { 
             displayImg = "../" + cleanPath; 
         }
+        // 👆👆👆 KẾT THÚC SỬA 👇👇👇
 
         container.innerHTML += `
             <div class="cart-item">
-                <img src="${displayImg}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/70?text=No+Img'">
+                <img src="${displayImg}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/70?text=Lỗi+Ảnh'">
                 <div><h4>${item.name}</h4><p>${priceText}</p></div>
                 <span class="remove-item" onclick="removeFromCart(${index})">Xóa</span>
             </div>`;
@@ -180,14 +188,18 @@ window.addToCart = function(name, price, imageSrc) {
     const existingItem = cart.find(item => item.name === name);
     if (existingItem) { showToast(`"${name}" đã có trong giỏ hàng rồi!`, true); return; }
 
-    // 👇 FIX LỖI ẢNH: Làm sạch đường dẫn trước khi lưu vào Data
-    let cleanImage = imageSrc.replace(/^(\.\.\/|\.\/)+/, ''); 
+    // 👇 CHUẨN HÓA ĐƯỜNG DẪN TRƯỚC KHI LƯU
+    let cleanImage = imageSrc;
+    if (cleanImage.includes("images/")) {
+        cleanImage = cleanImage.substring(cleanImage.lastIndexOf("images/"));
+    }
 
     cart.push({ name, price, image: cleanImage });
     saveData();
     window.renderCart(); 
     
-    // Logic hiệu ứng bay (giữ nguyên để tìm ảnh trên giao diện)
+    // --- Hiệu ứng bay (Giữ nguyên logic cũ để tìm ảnh trên giao diện) ---
+    // Lưu ý: Đoạn tìm ảnh để bay vẫn dùng imageSrc gốc để khớp với HTML hiện tại
     const productImg = document.querySelector('.detail-img') || document.querySelector(`img[alt="${name}"]`);
     const cartIcon = document.querySelector('.cart-icon');
     

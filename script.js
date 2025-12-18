@@ -365,13 +365,7 @@ window.confirmPayment = function() {
 
         push(ref(db, `orders/${currentUser.uid}`), orderData)
         .then(() => {
-<<<<<<< HEAD
             alert("Thanh toán thành công! Cảm ơn bạn đã ủng hộ.");
-=======
-            if (total === 0) alert("Nhận game thành công! Hãy kiểm tra thư viện.");
-            else alert("Thanh toán thành công!");
-            
->>>>>>> 33297ad030bf47c4efeafddb7f346d8452aa5089
             cart = []; saveData(); window.renderCart(); window.closePaymentModal();
             const isInGameFolder = window.location.pathname.includes("/games/");
             window.location.href = isInGameFolder ? "../profile.html" : "profile.html";

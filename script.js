@@ -214,57 +214,78 @@ window.removeFromCart = function(index) { cart.splice(index, 1); saveData(); win
 window.toggleCart = function() { document.getElementById('cartSidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); };
 
 // ============================================================
-// 7. BỘ LỌC VÀ SẮP XẾP (FILTER & SORT)
+// 7. BỘ LỌC VÀ TÌM KIẾM KẾT HỢP (FILTER & SEARCH LOGIC)
 // ============================================================
 
-// 1. FILTER GAME (Logic của bạn)
-window.filterGame = function(category) {
-    let buttons = document.getElementsByClassName('filter-btn');
-    for (let btn of buttons) {
-        btn.classList.remove('active');
-        if (btn.innerText.includes(category) || (category === 'all' && btn.innerText === 'Tất cả')) btn.classList.add('active');
-    }
-    if(event && event.target) event.target.classList.add('active');
+// Biến lưu trạng thái filter hiện tại (Mặc định là 'all')
+let currentFilterTag = 'all';
 
+// Hàm xử lý chính: Kiểm tra cả 2 điều kiện cùng lúc
+function applyGameFilters() {
+    // 1. Lấy từ khóa tìm kiếm hiện tại
+    let searchInput = document.getElementById('searchInput');
+    let keyword = searchInput ? searchInput.value.toLowerCase() : "";
+    
+    // 2. Lấy danh sách thẻ game
     let cards = document.getElementsByClassName('product-card');
-    for (let card of cards) {
-        let genre = card.querySelector('.genre').innerText;
-        let price = card.querySelector('.price').innerText;
-        if (category === 'all') card.style.display = "";
-        else if (category === 'Free') { if (price.includes('Free')) card.style.display = ""; else card.style.display = "none"; }
-        else { if (genre.includes(category)) card.style.display = ""; else card.style.display = "none"; }
-    }
-};
 
-// 2. FILTER BY TAG (Logic của đồng đội bạn thêm vào - Đã khôi phục)
-window.filterByTag = function(tag) {
-    let cards = document.getElementsByClassName('product-card');
-    
-    // Update active button state
-    document.querySelectorAll('.tag-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    if(event && event.target) event.target.classList.add('active');
-    
-    // Filter cards based on tag
     for (let i = 0; i < cards.length; i++) {
-        let cardTags = cards[i].getAttribute('data-tags');
+        let card = cards[i];
         
-        if (tag === 'all') {
-            cards[i].style.display = "";
-        } else if (cardTags && cardTags.includes(tag)) {
-            cards[i].style.display = "";
+        // Lấy thông tin của game
+        let title = card.getElementsByTagName('h3')[0].innerText.toLowerCase();
+        let tags = card.getAttribute('data-tags'); // Ví dụ: "action rpg"
+
+        // --- ĐIỀU KIỆN 1: TÌM KIẾM ---
+        let matchSearch = title.includes(keyword);
+
+        // --- ĐIỀU KIỆN 2: FILTER TAG ---
+        let matchTag = false;
+        if (currentFilterTag === 'all') {
+            matchTag = true; // Nếu chọn tất cả thì luôn đúng
+        } else if (tags && tags.includes(currentFilterTag)) {
+            matchTag = true; // Nếu tag của game có chứa tag đang chọn
+        }
+
+        // --- KẾT HỢP: Cả 2 phải cùng đúng mới hiện ---
+        if (matchSearch && matchTag) {
+            card.style.display = ""; // Hiện
+            card.classList.add('reveal', 'active'); // Kích hoạt lại hiệu ứng hiện
         } else {
-            cards[i].style.display = "none";
+            card.style.display = "none"; // Ẩn
         }
     }
+    
+    // Gọi lại sự kiện scroll để kích hoạt animation nếu cần
+    window.dispatchEvent(new Event('scroll'));
+}
+
+// Hàm 1: Khi bấm nút Filter
+window.filterByTag = function(tag) {
+    // Cập nhật biến toàn cục
+    currentFilterTag = tag;
+    
+    // Cập nhật giao diện nút bấm (Active Class)
+    let buttons = document.querySelectorAll('.tag-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    if(event && event.target) event.target.classList.add('active');
+    
+    // Gọi hàm xử lý chung
+    applyGameFilters();
 };
 
-// 3. SORT GAMES (Logic của đồng đội bạn - Giữ nguyên 100%)
+// Hàm 2: Khi gõ phím Tìm kiếm
+window.searchGame = function() {
+    // Chỉ cần gọi hàm xử lý chung (nó sẽ tự lấy value từ input)
+    applyGameFilters();
+};
+
+// Hàm 3: Sắp xếp (Sort) - Giữ nguyên logic cũ nhưng áp dụng trên các item đang hiển thị
 window.sortGames = function() {
-    let sortValue = document.getElementById('sortSelect').value;
+    let sortValue = document.getElementById('sortSelect').value; // Đảm bảo HTML có id="sortSelect" nếu dùng
     let container = document.getElementById('gameGrid');
+    if (!container) return; // Kiểm tra an toàn
+
     let cards = Array.from(container.getElementsByClassName('product-card'));
 
     cards.sort((a, b) => {
@@ -272,6 +293,7 @@ window.sortGames = function() {
         let priceB = b.querySelector('.price').innerText;
         let nameA = a.querySelector('h3').innerText.toLowerCase();
         let nameB = b.querySelector('h3').innerText.toLowerCase();
+        
         let valA = priceA.includes('Free') ? 0 : parseFloat(priceA.replace('$', ''));
         let valB = priceB.includes('Free') ? 0 : parseFloat(priceB.replace('$', ''));
 
@@ -281,18 +303,13 @@ window.sortGames = function() {
         else if (sortValue === 'name_za') return nameB.localeCompare(nameA);
         else return 0;
     });
+
+    // Sắp xếp lại DOM
     container.innerHTML = "";
     cards.forEach(card => container.appendChild(card));
-    window.dispatchEvent(new Event('scroll'));
-};
-
-window.searchGame = function() {
-    let input = document.getElementById('searchInput').value.toLowerCase();
-    let cards = document.getElementsByClassName('product-card');
-    for (let i = 0; i < cards.length; i++) {
-        let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-        cards[i].style.display = title.includes(input) ? "" : "none";
-    }
+    
+    // Sau khi sort xong, vẫn phải đảm bảo filter/search đúng
+    applyGameFilters();
 };
 
 // ============================================================
@@ -358,7 +375,7 @@ function reveal() {
     for (var i = 0; i < reveals.length; i++) {
         var windowheight = window.innerHeight;
         var revealtop = reveals[i].getBoundingClientRect().top;
-        if (revealtop < windowheight - 50) { reveals[i].classList.add('active'); } 
+        if (revealtop < windowheight - 20) { reveals[i].classList.add('active'); } 
         else { reveals[i].classList.remove('active'); }
     }
 }
@@ -385,7 +402,8 @@ styleChat.innerHTML = `
     .chat-container.hidden { display: none !important; }
     .main-chat-btn { width: 60px; height: 60px; background: #e74c3c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 0 20px rgba(231, 76, 60, 0.6); transition: 0.3s; position: relative; }
     .main-chat-btn:hover { transform: scale(1.1); }
-    .chat-container.active .main-chat-btn { background: #333; transform: rotate(45deg); }
+    /* Đổi nền thành trắng, icon thành đỏ, và bỏ hiệu ứng xoay */
+.chat-container.active .main-chat-btn { background: #fff; color: #e74c3c; transform: none; box-shadow: 0 0 10px white; }
     .sub-chat-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; text-decoration: none; opacity: 0; transform: translateY(20px) scale(0); pointer-events: none; transition: 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .chat-container.active .sub-chat-btn { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
     .btn-mess { background: #0084FF; transition-delay: 0.1s; } 
@@ -424,3 +442,16 @@ window.Tawk_API.onChatHidden = function(){ document.getElementById('chatMenu').c
 })();
 
 setInterval(() => { if (window.Tawk_API && !window.Tawk_API.isChatMaximized()) { const menu = document.getElementById('chatMenu'); if (menu && menu.classList.contains('hidden')) { window.Tawk_API.hideWidget(); menu.classList.remove('hidden'); } } }, 1000);
+
+// Hàm bật tắt hiển thị (Collapse)
+window.toggleSection = function(sectionId, headerElement) {
+    const section = document.getElementById(sectionId);
+    
+    if (section.classList.contains('hidden')) {
+        section.classList.remove('hidden'); // Hiện nội dung
+        headerElement.classList.remove('collapsed'); // Xoay mũi tên xuống
+    } else {
+        section.classList.add('hidden'); // Ẩn nội dung
+        headerElement.classList.add('collapsed'); // Xoay mũi tên ngang
+    }
+};

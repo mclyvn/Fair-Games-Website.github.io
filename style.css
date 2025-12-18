@@ -1,7 +1,8 @@
 /* =========================================
    1. CẤU HÌNH CHUNG & THANH CUỘN (SCROLLBAR)
    ========================================= */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
+/* Mới - Dùng Oswald */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Oswald', sans-serif; }
 body { background-color: #0b0b0b; color: #fff; overflow-x: hidden; }
 
 /* Tùy chỉnh thanh cuộn cho "Ngầu" */
@@ -628,7 +629,7 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
     border-radius: 20px;
     cursor: pointer;
     transition: 0.3s;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Teko', sans-serif;
     font-weight: 600;
 }
 
@@ -690,4 +691,35 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
     0% { transform: scale(1); }
     50% { transform: scale(1.4); }
     100% { transform: scale(1); }
+}
+
+/* --- COLLAPSE STYLES --- */
+.collapsible-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none; /* Không cho bôi đen chữ khi click nhanh */
+    transition: 0.3s;
+}
+
+.collapsible-header:hover {
+    color: #e74c3c; /* Đổi màu đỏ khi di chuột vào */
+}
+
+.collapsible-header i {
+    transition: transform 0.3s ease; /* Hiệu ứng xoay mũi tên */
+}
+
+.collapsible-header.collapsed i {
+    transform: rotate(-90deg); /* Xoay ngang khi đóng */
+}
+
+/* Ẩn nội dung khi có class hidden */
+.content-section {
+    transition: all 0.5s ease;
+    overflow: hidden;
+}
+.content-section.hidden {
+    display: none;
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ Sơ Game Thủ - Fair Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -76,9 +76,9 @@
         .order-card { background: #1a1a1a; border-radius: 10px; padding: 20px; margin-bottom: 20px; border: 1px solid #333; }
         .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; color: #888; }
         .order-header .order-date { color: #fff; font-weight: 700; }
-        
-        .game-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
-        
+
+        .game-list { display: flex;flex-direction: column; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+
         .purchased-game { display: flex; align-items: center; background: #252525; padding: 15px; border-radius: 8px; border: 1px solid #444; gap: 15px; position: relative; }
         .purchased-game img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; }
         .game-info h4 { margin: 0 0 5px 0; color: white; }
@@ -173,14 +173,25 @@
             <h2>Giới thiệu</h2>
             <div class="bio-box"><p id="userBio" class="bio-text">...</p></div>
 
-            <h2>Danh Sách Yêu Thích</h2>
-            <div id="wishlistLoading"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>
-            <div id="wishlistContainer" class="game-list" style="margin-bottom: 40px;">
-                </div>
+            <h2 class="collapsible-header" onclick="toggleSection('wishlistSection', this)">
+                Danh Sách Yêu Thích <i class="fas fa-chevron-down"></i>
+            </h2>
 
-            <h2>Thư Viện Game Đã Mua</h2>
-            <div id="loading"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>
-            <div id="ordersList"></div>
+            <div id="wishlistSection" class="content-section">
+                <div id="wishlistLoading"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>
+                <div id="wishlistContainer" class="game-list" style="margin-bottom: 40px;">
+                    </div>
+            </div>
+
+            <h2 class="collapsible-header" onclick="toggleSection('librarySection', this)">
+                Thư Viện Game Đã Mua <i class="fas fa-chevron-down"></i>
+            </h2>
+
+            <div id="librarySection" class="content-section">
+                <div id="loading"><i class="fas fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>
+                <div id="ordersList">
+                    </div>
+            </div>
         </div>
     </div>
 
@@ -453,27 +464,56 @@
             const ordersRef = ref(db, 'orders/' + userId);
             const container = document.getElementById('ordersList');
             const loading = document.getElementById('loading');
+            
             onValue(ordersRef, (snapshot) => {
-                loading.style.display = 'none'; container.innerHTML = ""; 
+                loading.style.display = 'none'; 
+                container.innerHTML = ""; 
                 let totalGamesCount = 0;
+                
                 if (snapshot.exists()) {
                     const data = snapshot.val();
+                    // Lấy danh sách đơn hàng và đảo ngược (Mới nhất lên đầu)
                     const orders = Object.values(data).reverse();
+                    
                     orders.forEach(order => {
                         let gamesHtml = "";
                         if (order.items) {
                             totalGamesCount += order.items.length;
                             order.items.forEach(game => {
                                 let priceText = game.price === 0 ? "FREE" : `$${game.price}`;
+                                // Logic lấy link tải
                                 let finalLink = game.downloadLink || GAME_SOURCE[game.name] || "#";
-                                let downloadBtn = (finalLink && finalLink !== "#") ? `<a href="${finalLink}" target="_blank" class="download-btn"><i class="fas fa-download"></i> Tải Game</a>` : `<button class="download-btn disabled" disabled><i class="fas fa-clock"></i> Sắp ra mắt</button>`;
-                                gamesHtml += `<div class="purchased-game"><img src="${game.image}" alt="${game.name}"><div class="game-info"><h4>${game.name}</h4><p>${priceText}</p></div>${downloadBtn}</div>`;
+                                let downloadBtn = (finalLink && finalLink !== "#") 
+                                    ? `<a href="${finalLink}" target="_blank" class="download-btn"><i class="fas fa-download"></i> Tải Game</a>` 
+                                    : `<button class="download-btn disabled" disabled><i class="fas fa-clock"></i> Sắp ra mắt</button>`;
+                                
+                                // HTML từng game
+                                gamesHtml += `
+                                    <div class="purchased-game">
+                                        <img src="${game.image}" alt="${game.name}">
+                                        <div class="game-info">
+                                            <h4>${game.name}</h4>
+                                            <p>${priceText}</p>
+                                        </div>
+                                        ${downloadBtn}
+                                    </div>`;
                             });
                         }
-                        container.innerHTML += `<div class="order-card"><div class="order-header"><span class="order-date">Ngày mua: ${order.date}</span></div><div class="game-list">${gamesHtml}</div></div>`;
+                        
+                        // --- ĐÃ XÓA PHẦN NGÀY MUA Ở ĐÂY ---
+                        // Chỉ hiển thị danh sách game, không hiện header ngày tháng nữa
+                        container.innerHTML += `
+                            <div class="order-card" style="border:none; padding:0; margin-bottom: 10px;">
+                                <div class="game-list" style="display:flex; flex-direction:column; gap:10px;">
+                                    ${gamesHtml}
+                                </div>
+                            </div>`;
                     });
+                    
                     document.getElementById('gamesOwned').innerText = totalGamesCount;
-                } else { container.innerHTML = `<div style="text-align:center; padding:50px; color:#666;"><p>Chưa có đơn hàng nào.</p></div>`; }
+                } else { 
+                    container.innerHTML = `<div style="text-align:center; padding:50px; color:#666;"><p>Chưa có đơn hàng nào.</p></div>`; 
+                }
             });
         }
     </script>

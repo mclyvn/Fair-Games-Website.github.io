@@ -796,3 +796,42 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
     40% {transform: translateY(-20px);}
     60% {transform: translateY(-10px);}
 }
+
+
+/* Style thu gọn cho modal 0đ */
+.payment-box.compact {
+    max-width: 450px !important; /* Thu hẹp chiều ngang */
+    padding: 30px !important;
+    min-height: auto !important;
+}
+.payment-box.compact .payment-header h2 {
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+
+/* --- FIX LỖI MODAL BỊ QUÁ TO --- */
+
+.payment-box {
+    width: 95%; /* Trên điện thoại thì lấy 95% màn hình */
+    max-width: 850px !important; /* QUAN TRỌNG: Giới hạn chiều rộng tối đa chỉ 850px */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    transition: max-width 0.3s ease; /* Hiệu ứng co giãn mượt mà */
+}
+
+/* Khi ở chế độ gọn (0đ) */
+.payment-box.compact {
+    max-width: 450px !important;
+}
+
+/* Responsive: Trên điện thoại thì xếp dọc */
+@media (max-width: 768px) {
+    .payment-container {
+        flex-direction: column;
+    }
+    .payment-box {
+        max-width: 100% !important; /* Mobile thì cho full */
+    }
+}

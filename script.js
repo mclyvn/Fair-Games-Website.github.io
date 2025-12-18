@@ -11,7 +11,7 @@ import { ref, set, get, child, push, onValue } from "https://www.gstatic.com/fir
 let cart = []; 
 let wishlist = []; 
 let currentUser = null; 
-let currentFilterTag = 'all'; // Biến lưu tag đang chọn
+let currentFilterTag = 'all'; 
 
 // Danh sách Link tải game
 const GAME_DATABASE = {
@@ -29,7 +29,6 @@ const GAME_DATABASE = {
     "Minecraft": "https://www.minecraft.net/en-us/download"
 };
 
-// Load giỏ hàng tạm thời
 function loadGuestCartFromLocalStorage() {
     try {
         const raw = localStorage.getItem('guestCart');
@@ -39,7 +38,7 @@ function loadGuestCartFromLocalStorage() {
 loadGuestCartFromLocalStorage();
 
 // ============================================================
-// 3. XỬ LÝ AUTH (ĐĂNG NHẬP/ĐĂNG XUẤT)
+// 3. XỬ LÝ AUTH
 // ============================================================
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -73,7 +72,7 @@ function updateUserBox(email) {
 window.logout = function() { signOut(auth).then(() => location.reload()).catch(console.error); };
 
 // ============================================================
-// 4. DỮ LIỆU & ĐỒNG BỘ (CART + WISHLIST)
+// 4. DỮ LIỆU & ĐỒNG BỘ
 // ============================================================
 function loadCartFromFirebase(userId) {
     const dbRef = ref(db);
@@ -132,7 +131,7 @@ function updateWishlistUI() {
 }
 
 // ============================================================
-// 6. GIỎ HÀNG & UI (ĐÃ SỬA LỖI ẢNH)
+// 6. GIỎ HÀNG & UI
 // ============================================================
 window.renderCart = function() {
     const container = document.getElementById('cartItems');
@@ -152,26 +151,21 @@ window.renderCart = function() {
         total += item.price;
         let priceText = item.price === 0 ? "Free" : `$${item.price}`;
         
-        // 👇👇👇 XỬ LÝ ẢNH SIÊU CỨNG (V3) 👇👇👇
         let cleanPath = item.image;
-        // Nếu đường dẫn có chứa chữ "images/", ta chỉ lấy từ đó trở về sau
         if (cleanPath.includes("images/")) {
             cleanPath = cleanPath.substring(cleanPath.lastIndexOf("images/"));
         }
 
-        // Kiểm tra xem đang đứng ở đâu (Dùng toLowerCase để không sợ Games hay games)
         let currentPath = window.location.pathname.toLowerCase();
         let displayImg = cleanPath; 
         
-        // Nếu đang ở trong thư mục con (ví dụ /games/...) thì lùi ra 1 cấp
         if (currentPath.includes("/games/") || currentPath.includes("/games-")) { 
             displayImg = "../" + cleanPath; 
         }
-        // 👆👆👆 KẾT THÚC SỬA 👇👇👇
 
         container.innerHTML += `
             <div class="cart-item">
-                <img src="${displayImg}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/70?text=Lỗi+Ảnh'">
+                <img src="${displayImg}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/70?text=No+Img'">
                 <div><h4>${item.name}</h4><p>${priceText}</p></div>
                 <span class="remove-item" onclick="removeFromCart(${index})">Xóa</span>
             </div>`;
@@ -187,7 +181,6 @@ window.addToCart = function(name, price, imageSrc) {
     const existingItem = cart.find(item => item.name === name);
     if (existingItem) { showToast(`"${name}" đã có trong giỏ hàng rồi!`, true); return; }
 
-    // 👇 CHUẨN HÓA ĐƯỜNG DẪN TRƯỚC KHI LƯU
     let cleanImage = imageSrc;
     if (cleanImage.includes("images/")) {
         cleanImage = cleanImage.substring(cleanImage.lastIndexOf("images/"));
@@ -197,7 +190,6 @@ window.addToCart = function(name, price, imageSrc) {
     saveData();
     window.renderCart(); 
     
-    // --- Hiệu ứng bay (Giữ nguyên logic cũ để tìm ảnh trên giao diện) ---
     const productImg = document.querySelector('.detail-img') || document.querySelector(`img[alt="${name}"]`);
     const cartIcon = document.querySelector('.cart-icon');
     
@@ -240,8 +232,6 @@ window.toggleCart = function() { document.getElementById('cartSidebar').classLis
 // ============================================================
 // 7. BỘ LỌC + TÌM KIẾM + SẮP XẾP
 // ============================================================
-
-// Hàm xử lý chung
 function applyGameFilters() {
     let searchInput = document.getElementById('searchInput');
     let keyword = searchInput ? searchInput.value.toLowerCase() : "";
@@ -304,7 +294,7 @@ window.sortGames = function() {
 };
 
 // ============================================================
-// 8. THANH TOÁN (PAYMENT)
+// 8. THANH TOÁN (PAYMENT) - ĐÃ CÓ LOGIC CHỈNH SIZE
 // ============================================================
 const MY_BANK = { BANK_ID: 'MB', ACCOUNT_NO: '0357876625', ACCOUNT_NAME: 'DO QUANG THANG', TEMPLATE: 'compact2' };
 
@@ -313,6 +303,9 @@ window.openCheckout = function() {
     if (!currentUser) { alert("Vui lòng đăng nhập!"); window.location.href = "login.html"; return; }
 
     const modal = document.getElementById('paymentModal');
+    // 👇 QUAN TRỌNG: Lấy khối nội dung để chỉnh class
+    const modalContent = document.querySelector('.payment-box'); 
+    
     const qrImg = document.getElementById('qrImage');
     const payAmount = document.getElementById('payAmount');
     const transferContent = document.getElementById('transferContent');
@@ -326,12 +319,14 @@ window.openCheckout = function() {
     payAmount.innerText = `$${total.toFixed(2)} (Khoảng ${(total * 24000).toLocaleString()} VND)`;
     transferContent.innerText = orderId;
 
-    // 👇 NÂNG CẤP GIAO DIỆN 0Đ (ICON QUÀ TẶNG) 👇
     if (total === 0) {
+        // --- CHẾ ĐỘ 0Đ: THU NHỎ ---
         if (qrSection) qrSection.style.display = 'none';
         if (bankInfo) bankInfo.style.display = 'none'; 
         
-        // Thêm icon quà tặng
+        // 👇 THÊM CLASS ĐỂ THU NHỎ
+        if (modalContent) modalContent.classList.add('compact');
+
         let giftHtml = '<div class="free-gift-icon"><i class="fas fa-gift"></i></div>';
         const infoSection = document.querySelector('.info-section');
         if (!infoSection.querySelector('.free-gift-icon')) {
@@ -342,10 +337,13 @@ window.openCheckout = function() {
 
         confirmBtn.innerHTML = '<i class="fas fa-arrow-right"></i> NHẬN GAME NGAY';
     } else {
+        // --- CHẾ ĐỘ CÓ TIỀN: KÍCH THƯỚC CHUẨN 850px ---
         if (qrSection) qrSection.style.display = 'block'; 
         if (bankInfo) bankInfo.style.display = 'block';   
         
-        // Ẩn icon quà tặng
+        // 👇 XÓA CLASS ĐỂ TRỞ VỀ KÍCH THƯỚC BÌNH THƯỜNG
+        if (modalContent) modalContent.classList.remove('compact');
+
         const giftIcon = document.querySelector('.free-gift-icon');
         if (giftIcon) giftIcon.style.display = 'none';
 
@@ -355,7 +353,6 @@ window.openCheckout = function() {
         const qrSource = `https://img.vietqr.io/image/${MY_BANK.BANK_ID}-${MY_BANK.ACCOUNT_NO}-${MY_BANK.TEMPLATE}.png?amount=${vndAmount}&addInfo=${orderId}&accountName=${encodeURIComponent(MY_BANK.ACCOUNT_NAME)}`;
         qrImg.src = qrSource;
     }
-    // 👆 KẾT THÚC NÂNG CẤP 👆
     
     modal.style.display = "flex"; 
     window.toggleCart(); 

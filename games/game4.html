@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elden Ring - Fair Game</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* same inline styles as game1 */
+        .game-detail-wrapper { max-width: 1000px; margin: 40px auto; padding: 20px; background: #1e1e1e; border-radius: 8px; }
+        .top-section { display: flex; gap: 30px; margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 30px; }
+        .detail-img { width: 350px; height: 300px; object-fit: cover; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .detail-info { flex: 1; }
+        .detail-info h1 { font-size: 2.8em; color: #fff; margin-bottom: 10px; }
+        .detail-info .price { font-size: 2em; color: #e74c3c; font-weight: bold; margin: 15px 0; }
+        .detail-info .desc { color: #ccc; line-height: 1.6; margin-bottom: 25px; font-size: 1.1em; }
+        .big-btn { padding: 15px 40px; font-size: 1.2em; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .big-btn:hover { background: #c0392b; transform: scale(1.05); }
+        .section-title { color: #fff; border-left: 5px solid #e74c3c; padding-left: 15px; margin: 30px 0 20px 0; font-size: 1.5em; }
+        .req-table { width: 100%; border-collapse: collapse; background: #252525; border-radius: 8px; overflow: hidden; margin-bottom: 40px; }
+        .req-table th, .req-table td { padding: 15px; text-align: left; border-bottom: 1px solid #333; color: #ccc; }
+        .req-table th { background-color: #2c2c2c; color: #e74c3c; width: 25%; font-weight: bold; }
+        .review-form-container { background-color: #252525; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #333; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #fff; }
+        .form-input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #444; background: #1e1e1e; color: white; }
+        textarea.form-input { resize: vertical; height: 80px; font-family: inherit; }
+        .star-widget { display: flex; gap: 5px; direction: ltr; margin-bottom: 10px; }
+        .star-widget span { font-size: 30px; color: #444; cursor: pointer; transition: color 0.2s; }
+        .star-widget span.hovered, .star-widget span.selected { color: #f1c40f; }
+        .submit-btn { background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .submit-btn:hover { background-color: #219150; }
+        .review-list { display: flex; flex-direction: column; gap: 15px; }
+        .review-card { background-color: #252525; padding: 15px 20px; border-radius: 8px; border-left: 4px solid #555; }
+        .user-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .username { font-weight: bold; color: #fff; }
+        .rating { color: #f1c40f; letter-spacing: 2px; }
+        .review-date { font-size: 0.8em; color: #777; display: block; margin-bottom: 5px; }
+        .review-text { color: #ccc; line-height: 1.5; }
+        #loginWarning { background: rgba(231, 76, 60, 0.1); border: 1px solid #e74c3c; color: #e74c3c; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 30px; display: none; }
+        #loginWarning a { color: #fff; text-decoration: underline; font-weight: bold; }
+        @media(max-width: 768px) { .top-section { flex-direction: column; } .detail-img { width: 100%; height: auto; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">FAIR GAME</div>
+        <nav>
+            <a href="../index.html">Trang chủ</a>
+            <a href="../docquyen.html">Game độc quyền</a>
+            <a href="../aboutus.html">About us</a>
+        </nav>
+        <div class="header-right">
+            <div class="cart-icon" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span id="cart-count">0</span></div>
+            <div class="user-box" id="userBox"><a href="../login.html">Đăng nhập</a></div>
+        </div>
+    </header>
+
+    <div class="game-detail-wrapper">
+        <div class="top-section">
+            <img src="../images/eden-ring.jpg" alt="Elden Ring" class="detail-img">
+            <div class="detail-info">
+                <h1>Elden Ring</h1>
+                <p style="color:#888; font-style: italic;">Thể loại: RPG / Souls</p>
+                <p class="price">$59.99</p>
+                <p class="desc">Elden Ring — một tác phẩm nhập vai hành động đỉnh cao từ FromSoftware.</p>
+                <button class="big-btn" onclick="addToCart('Elden Ring', 59.99, '../images/eden-ring.jpg')"><i class="fas fa-cart-plus"></i> Thêm vào giỏ</button>
+            </div>
+        </div>
+        <h2 class="section-title">Yêu cầu hệ thống</h2>
+        <table class="req-table"><tr><th>OS</th><td>Windows 10 (64-bit)</td></tr><tr><th>CPU</th><td>Intel Core i7</td></tr><tr><th>RAM</th><td>8 GB RAM</td></tr><tr><th>GPU</th><td>NVIDIA GTX 1060</td></tr><tr><th>Storage</th><td>50 GB</td></tr></table>
+        <h2 class="section-title">Đánh giá từ người chơi</h2>
+        <div id="loginWarning">Bạn cần <a href="../login.html">Đăng nhập</a> để viết đánh giá.</div>
+        <div class="review-form-container" id="reviewForm" style="display:none;"><div class="form-group"><label>Đang đánh giá dưới tên: <span id="currentUserLabel" style="color: #e74c3c;">...</span></label></div><div class="form-group"><label>Đánh giá:</label><div class="star-widget" id="starWidget"><span data-value="1">★</span><span data-value="2">★</span><span data-value="3">★</span><span data-value="4">★</span><span data-value="5">★</span></div><input type="hidden" id="ratingValue" value="0"><div id="ratingText" style="color: #888; font-size: 0.9em;">Chưa chọn sao</div></div><div class="form-group"><label>Nội dung:</label><textarea id="inputComment" class="form-input" placeholder="Chia sẻ cảm nghĩ của bạn..."></textarea></div><button class="submit-btn" id="btnSubmitReview">Gửi đánh giá</button></div>
+        <div id="reviewList" class="review-list"><p style="color:#888; text-align:center">Đang tải bình luận...</p></div>
+    </div>
+
+    <footer>
+        <div class="footer-content"><div class="footer-section"><h3>Fair Game Store</h3><p>Nơi cung cấp game bản quyền uy tín, giá rẻ hàng đầu Việt Nam.</p></div><div class="footer-section"><h3>Liên hệ</h3><p>Email: hotro@fairgame.vn</p><p>SĐT: 0123.456.789</p><div class="socials"><i class="fab fa-facebook"></i><i class="fab fa-instagram"></i><i class="fab fa-discord"></i></div></div><div class="footer-section"><h3>Chính sách</h3><p><a href="#">Điều khoản sử dụng</a></p><p><a href="#">Chính sách bảo mật</a></p><p><a href="#">Hoàn tiền</a></p></div></div>
+        <div class="footer-bottom">&copy; 2025 Fair Games | Upgrade by You</div>
+    </footer>
+
+    <div class="cart-sidebar" id="cartSidebar"><div class="cart-header"><h3>Giỏ hàng</h3><button onclick="toggleCart()" class="close-btn">&times;</button></div><div class="cart-items" id="cartItems"></div><div class="cart-footer"><p>Tổng tiền: <span id="cartTotal">$0.00</span></p><button class="checkout-btn" onclick="openCheckout()">Thanh toán</button></div></div>
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <div id="paymentModal" class="modal"><div class="modal-content payment-box"><span class="close-modal" onclick="closePaymentModal()">&times;</span><div class="payment-header"><h2>THANH TOÁN ĐƠN HÀNG</h2></div><div class="payment-container"><div class="qr-section"><p>Quét mã bằng ứng dụng ngân hàng:</p><div class="qr-wrapper"><img id="qrImage" src="" alt="QR Code" class="qr-img"></div><div class="transfer-note">Nội dung chuyển khoản bắt buộc:<span id="transferContent" class="transfer-code">Loading...</span></div></div><div class="info-section"><h3>Thông tin thanh toán</h3><p>Tổng tiền cần thanh toán:</p><p id="payAmount" class="total-price">0đ</p><div class="bank-card"><p>Ngân hàng: <b>MB Bank</b></p><p>Chủ tài khoản: <b>DO QUANG THANG</b></p><p>Số tài khoản: <b style="color: #f1c40f; font-size: 1.2em;">0357876625</b></p></div><p style="font-style: italic; font-size: 0.9em; color: #888; margin-bottom: 20px;"><i class="fas fa-info-circle"></i> Lưu ý: Hệ thống sẽ tự động xử lý sau khi bạn chuyển khoản thành công. Vui lòng không tắt trình duyệt.</p><button class="confirm-pay-btn" onclick="confirmPayment()"><i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN</button></div></div></div>
+
+    <script type="module">
+        import { auth, db } from "../firebase.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        const GAME_ID = 'game4_reviews';
+        let currentUser = null;
+        onAuthStateChanged(auth, (user) => { if (user) { currentUser = user; document.getElementById('reviewForm').style.display='block'; document.getElementById('loginWarning').style.display='none'; document.getElementById('currentUserLabel').innerText = user.email; } else { currentUser=null; document.getElementById('reviewForm').style.display='none'; document.getElementById('loginWarning').style.display='block'; } });
+        const stars = document.querySelectorAll('.star-widget span');
+        const ratingValueInput = document.getElementById('ratingValue');
+        const ratingText = document.getElementById('ratingText');
+        const ratingLabels = ["Rất tệ","Tệ","Bình thường","Tốt","Tuyệt vời"];
+        stars.forEach((star, index)=>{ star.addEventListener('click', ()=>{ ratingValueInput.value = index+1; ratingText.innerText = ratingLabels[index]; ratingText.style.color = '#f1c40f'; }); });
+        document.getElementById('btnSubmitReview')?.addEventListener('click', ()=>{ if(!currentUser) return; const comment = document.getElementById('inputComment').value.trim(); const starsSelected = parseInt(ratingValueInput.value); if(comment==="") { alert('Vui lòng nhập nội dung!'); return; } if(starsSelected===0){ alert('Vui lòng chọn số sao!'); return;} push(ref(db, 'reviews/' + GAME_ID), { user: currentUser.email, stars: starsSelected, content: comment, createdAt: new Date().toLocaleString('vi-VN') }).then(()=>{ document.getElementById('inputComment').value=''; ratingValueInput.value=0; alert('Đã gửi đánh giá!'); }).catch(()=>{}); });
+        const reviewsRef = ref(db,'reviews/'+GAME_ID); onValue(reviewsRef, (snapshot)=>{ const list = document.getElementById('reviewList'); list.innerHTML=''; if(snapshot.exists()){ const reviews = Object.values(snapshot.val()).reverse(); reviews.forEach(review=>{ const starString = '★'.repeat(review.stars) + '☆'.repeat(5-review.stars); const avatarChar = review.user.charAt(0).toUpperCase(); list.innerHTML += `<div class="review-card"><div class="user-header"><div style="display:flex;align-items:center;gap:10px;"><div style="width:30px;height:30px;background:#333;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#e74c3c;font-weight:bold;">${avatarChar}</div><span class="username">${review.user}</span></div><span class="rating">${starString}</span></div><span class="review-date">${review.createdAt}</span><p class="review-text">${review.content}</p></div>`; }); } else { list.innerHTML = "<p style='color:#666;text-align:center'>Chưa có đánh giá nào.</p>"; } });
+    </script>
+    <script type="module" src="../firebase.js"></script>
+    <script type="module" src="../auth.js"></script>
+    <script type="module" src="../script.js"></script>
+</body>
+</html>

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết Game - Fair Game</title>
     
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -68,7 +69,7 @@
             <a href="../docquyen.html">Game độc quyền</a>
             <a href="../aboutus.html">About us</a>
         </nav>
-        
+
         <div class="header-right">
             <div class="cart-icon" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i>
@@ -138,6 +139,34 @@
         </div>
     </div>
 
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Fair Game Store</h3>
+                <p>Nơi cung cấp game bản quyền uy tín, giá rẻ hàng đầu Việt Nam.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p>Email: hotro@fairgame.vn</p>
+                <p>SĐT: 0123.456.789</p>
+                <div class="socials">
+                    <i class="fab fa-facebook"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-discord"></i>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Chính sách</h3>
+                <p><a href="#">Điều khoản sử dụng</a></p>
+                <p><a href="#">Chính sách bảo mật</a></p>
+                <p><a href="#">Hoàn tiền</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 Fair Games | Upgrade by You
+        </div>
+    </footer>
+
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
             <h3>Giỏ hàng</h3>
@@ -150,18 +179,46 @@
         </div>
     </div>
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-box">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            
+            <div class="payment-header">
+                <h2>THANH TOÁN ĐƠN HÀNG</h2>
+            </div>
+            
+            <div class="payment-container">
+                <div class="qr-section">
+                    <p>Quét mã bằng ứng dụng ngân hàng:</p>
+                    <div class="qr-wrapper">
+                        <img id="qrImage" src="" alt="QR Code" class="qr-img">
+                    </div>
+                    <div class="transfer-note">
+                        Nội dung chuyển khoản bắt buộc:
+                        <span id="transferContent" class="transfer-code">Loading...</span>
+                    </div>
+                </div>
 
-    <div id="checkoutModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeCheckout()">&times;</span>
-            <h2>Thanh toán</h2>
-            <p>Điền thông tin để nhận key game qua email</p>
-            <form onsubmit="processPayment(event)">
-                <input type="text" placeholder="Họ tên" required class="input-field">
-                <input type="email" placeholder="Email nhận key" required class="input-field">
-                <div class="payment-summary">Tổng tiền: <span id="paymentTotal">$0.00</span></div>
-                <button type="submit" class="pay-btn">Xác nhận thanh toán</button>
-            </form>
+                <div class="info-section">
+                    <h3>Thông tin thanh toán</h3>
+                    <p>Tổng tiền cần thanh toán:</p>
+                    <p id="payAmount" class="total-price">0đ</p>
+                    
+                    <div class="bank-card">
+                        <p>Ngân hàng: <b>MB Bank</b></p>
+                        <p>Chủ tài khoản: <b>DO QUANG THANG</b></p>
+                        <p>Số tài khoản: <b style="color: #f1c40f; font-size: 1.2em;">0357876625</b></p>
+                    </div>
+
+                    <p style="font-style: italic; font-size: 0.9em; color: #888; margin-bottom: 20px;">
+                        <i class="fas fa-info-circle"></i> Lưu ý: Hệ thống sẽ tự động xử lý sau khi bạn chuyển khoản thành công. Vui lòng không tắt trình duyệt.
+                    </p>
+
+                    <button class="confirm-pay-btn" onclick="confirmPayment()">
+                        <i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -288,6 +345,8 @@
 
     </script>
     
+    <script type="module" src="../firebase.js"></script>
+    <script type="module" src="../auth.js"></script>
     <script type="module" src="../script.js"></script>
 </body>
 </html>

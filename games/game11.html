@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resident Evil - Fair Game</title>
+    <title>ARK: Survival Ascended - Fair Game</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
@@ -62,17 +62,17 @@
 
     <div class="game-detail-wrapper">
         <div class="top-section">
-            <img src="../images/residentevil4.webp" alt="Resident Evil" class="detail-img">
+            <img src="../images/ark.webp" alt="ARK cover" class="detail-img">
             <div class="detail-info">
-                <h1>Resident Evil</h1>
-                <p style="color:#888; font-style: italic;">Thể loại: Survival / Horror</p>
-                <p class="price">$29.99</p>
-                <p class="desc">Resident Evil — kinh dị sinh tồn, câu chuyện hấp dẫn và gameplay căng thẳng.</p>
-                <button class="big-btn" onclick="addToCart('Resident Evil', 29.99, '../images/resident-evil.jpg')"><i class="fas fa-cart-plus"></i> Thêm vào giỏ</button>
+                <h1>ARK: Survival Ascended</h1>
+                <p style="color:#888; font-style: italic;">Thể loại: Survival / Open World</p>
+                <p class="price">$19.99</p>
+                <p class="desc">ARK — sinh tồn trong thế giới khủng long, xây base, thuần hóa sinh vật và chiến đấu để sống còn.</p>
+                <button class="big-btn" onclick="addToCart('ARK: Survival Ascended', 19.99, '../images/ark.webp')"><i class="fas fa-cart-plus"></i> Thêm vào giỏ</button>
             </div>
         </div>
         <h2 class="section-title">Yêu cầu hệ thống</h2>
-        <table class="req-table"><tr><th>OS</th><td>Windows 10 (64-bit)</td></tr><tr><th>CPU</th><td>Intel Core i5</td></tr><tr><th>RAM</th><td>8 GB RAM</td></tr><tr><th>GPU</th><td>NVIDIA GTX 960</td></tr><tr><th>Storage</th><td>25 GB</td></tr></table>
+        <table class="req-table"><tr><th>OS</th><td>Windows 10 (64-bit)</td></tr><tr><th>CPU</th><td>Intel Core i5</td></tr><tr><th>RAM</th><td>8 GB RAM</td></tr><tr><th>GPU</th><td>NVIDIA GTX 970</td></tr><tr><th>Storage</th><td>60 GB</td></tr></table>
         <h2 class="section-title">Đánh giá từ người chơi</h2>
         <div id="loginWarning">Bạn cần <a href="../login.html">Đăng nhập</a> để viết đánh giá.</div>
         <div class="review-form-container" id="reviewForm" style="display:none;"><div class="form-group"><label>Đang đánh giá dưới tên: <span id="currentUserLabel" style="color: #e74c3c;">...</span></label></div><div class="form-group"><label>Đánh giá:</label><div class="star-widget" id="starWidget"><span data-value="1">★</span><span data-value="2">★</span><span data-value="3">★</span><span data-value="4">★</span><span data-value="5">★</span></div><input type="hidden" id="ratingValue" value="0"><div id="ratingText" style="color: #888; font-size: 0.9em;">Chưa chọn sao</div></div><div class="form-group"><label>Nội dung:</label><textarea id="inputComment" class="form-input" placeholder="Chia sẻ cảm nghĩ của bạn..."></textarea></div><button class="submit-btn" id="btnSubmitReview">Gửi đánh giá</button></div>
@@ -93,7 +93,7 @@
         import { auth, db } from "../firebase.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-        const GAME_ID = 'game10_reviews';
+        const GAME_ID = 'game11_reviews';
         let currentUser = null;
         onAuthStateChanged(auth, (user) => { if (user) { currentUser = user; document.getElementById('reviewForm').style.display='block'; document.getElementById('loginWarning').style.display='none'; document.getElementById('currentUserLabel').innerText = user.email; } else { currentUser=null; document.getElementById('reviewForm').style.display='none'; document.getElementById('loginWarning').style.display='block'; } });
         const stars = document.querySelectorAll('.star-widget span');

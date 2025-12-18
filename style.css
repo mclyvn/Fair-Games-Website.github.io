@@ -625,7 +625,7 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
 .bank-card b { color: #fff; letter-spacing: 1px; }
 
 .confirm-pay-btn {
-    width: 100%; padding: 18px;
+    width: 100%; padding: 10px;
     background: linear-gradient(45deg, #27ae60, #2ecc71); /* Gradient xanh lá */
     color: white; border: none; border-radius: 8px;
     font-size: 1.2em; font-weight: bold; cursor: pointer;
@@ -786,12 +786,12 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
     text-shadow: 0 0 15px #e74c3c;
     margin-bottom: 10px;
     border-bottom: 1px solid #333;
-    padding-bottom: 20px;
+    padding-bottom: 10px;
 }
 
 /* 2. Phần hiển thị tiền */
 #payAmount {
-    font-size: 2em; /* To hơn nữa */
+    font-size: 1.6em; /* To hơn nữa */
     color: #e74c3c;
     text-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
     margin: 10px 0 20px 0;
@@ -861,8 +861,7 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
 .payment-box {
     width: auto;                 /* ❌ bỏ 95% */
     max-width: 900px;            /* 👈 chiều ngang cố định */
-    max-height: 90vh;            /* 👈 KHÔNG cao quá màn hình */
-    overflow-y: auto;            /* nếu nội dung dài thì cuộn */
+    max-height: 90vh;            /* 👈 KHÔNG cao quá màn hình */           /* nếu nội dung dài thì cuộn */
     margin: 0 auto;
 
     background: linear-gradient(145deg, #121212, #1a0505);

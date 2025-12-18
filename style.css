@@ -566,3 +566,95 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
     .qr-section, .info-section { flex: auto; }
     .payment-box { margin: 20px; width: auto; }
 }
+
+/* --- FIX LỖI TAWK.TO --- */
+.tawk-min-container { display: none !important; visibility: hidden !important; }
+
+
+/* --- BỘ LỌC VÀ SẮP XẾP --- */
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.filter-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.filter-btn {
+    background: transparent;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: #e74c3c;
+    border-color: #e74c3c;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.sort-group select {
+    background: #111;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+}
+.sort-group select:focus { outline: none; border-color: #e74c3c; }
+
+@media (max-width: 768px) {
+    .filter-bar { flex-direction: column; align-items: flex-start; }
+    .filter-group { width: 100%; overflow-x: auto; padding-bottom: 5px; }
+}
+
+/* --- WISHLIST (YÊU THÍCH) - UPDATE ĐẸP HƠN --- */
+.card-img-wrapper {
+    position: relative;
+}
+
+.wishlist-btn {
+    position: absolute;
+    top: 8px; 
+    right: 8px;
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.8); /* Màu trắng mờ */
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    /* Bỏ nền đen tròn đi, dùng đổ bóng cho sang */
+    background: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); 
+}
+
+.wishlist-btn:hover {
+    color: #fff;
+    transform: scale(1.2);
+}
+
+/* Khi đã tim (Active) */
+.wishlist-btn.active {
+    color: #e74c3c; /* Màu đỏ rực */
+    filter: drop-shadow(0 0 10px rgba(231, 76, 60, 0.6)); /* Phát sáng nhẹ */
+    animation: heartBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartBounce {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}

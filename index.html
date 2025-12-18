@@ -48,6 +48,26 @@
             </div>
         </div>
 
+        <div class="filter-bar reveal">
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterGame('all')">Tất cả</button>
+                <button class="filter-btn" onclick="filterGame('Action')">Hành động</button>
+                <button class="filter-btn" onclick="filterGame('Survival')">Sinh tồn</button>
+                <button class="filter-btn" onclick="filterGame('Horror')">Kinh dị</button>
+                <button class="filter-btn" onclick="filterGame('Free')">Miễn phí</button>
+            </div>
+        
+            <div class="sort-group">
+                <select id="sortSelect" onchange="sortGames()">
+                    <option value="default">Sắp xếp: Mặc định</option>
+                    <option value="price_asc">Giá: Thấp đến Cao</option>
+                    <option value="price_desc">Giá: Cao đến Thấp</option>
+                    <option value="name_az">Tên: A-Z</option>
+                    <option value="name_za">Tên: Z-A</option>
+                </select>
+            </div>
+        </div>
+
         <div class="product-grid" id="gameGrid">
             
             <div class="product-card reveal">
@@ -56,6 +76,7 @@
                     <a href="games/game1.html">
                         <img src="images/slayer.png" alt="Ace Slayer">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('Ace Slayer')" data-game="Ace Slayer"></i>
                 </div>
                 <h3>Ace Slayer</h3>
                 <p class="genre">Action / RPG</p>
@@ -68,6 +89,7 @@
                     <a href="games/game2.html">
                         <img src="images/bunny.png" alt="Bunny Adventure">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('Bunny Adventure')" data-game="Bunny Adventure"></i>
                 </div>
                 <h3>Bunny Adventure</h3>
                 <p class="genre">Adventure</p>
@@ -80,6 +102,7 @@
                     <a href="games/game3.html">
                         <img src="images/pubg.jpg" alt="PUBG Mobile">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('PUBG Mobile')" data-game="PUBG Mobile"></i>
                 </div>
                 <h3>PUBG Mobile</h3>
                 <p class="genre">Shooter</p>
@@ -93,6 +116,7 @@
                     <a href="games/game4.html">
                         <img src="images/eden-ring.jpg" alt="Elden Ring">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('Elden Ring')" data-game="Elden Ring"></i>
                 </div>
                 <h3>Elden Ring</h3>
                 <p class="genre">RPG / Souls</p>
@@ -105,6 +129,7 @@
                     <a href="games/game5.html">
                         <img src="images/freefire.jpg" alt="FreeFire">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('FreeFire')" data-game="FreeFire"></i>
                 </div>
                 <h3>FreeFire</h3>
                 <p class="genre">Survival Shooter</p>
@@ -117,6 +142,7 @@
                     <a href="games/game6.html">
                         <img src="images/earth2130.png" alt="Earth 2130">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('Earth 2130')" data-game="Earth 2130"></i>
                 </div>
                 <h3>Earth 2130</h3>
                 <p class="genre">Sci-Fi Strategy</p>
@@ -129,6 +155,7 @@
                     <a href="games/game7.html">
                         <img src="images/ufo.png" alt="UFO Attack">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('UFO Attack')" data-game="UFO Attack"></i>
                 </div>
                 <h3>UFO Attack</h3>
                 <p class="genre">Arcade</p>
@@ -141,6 +168,7 @@
                     <a href="games/game8.html">
                         <img src="images/apple.png" alt="Apple Collector">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('Apple Collector')" data-game="Apple Collector"></i>
                 </div>
                 <h3>Apple Collector</h3>
                 <p class="genre">Casual</p>
@@ -153,6 +181,7 @@
                     <a href="games/game9.html">
                         <img src="images/monsterhunter.avif" alt="Monster Hunter">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('Monster Hunter')" data-game="Monster Hunter"></i>
                 </div>
                 <h3>Monster Hunter</h3>
                 <p class="genre">Action / Co-op</p>
@@ -165,6 +194,7 @@
                     <a href="games/game10.html">
                         <img src="images/residentevil4.webp" alt="Resident Evil">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('Resident Evil')" data-game="Resident Evil"></i>
                 </div>
                 <h3>Resident Evil</h3>
                 <p class="genre">Survival / Horror</p>
@@ -172,23 +202,25 @@
                 <button onclick="addToCart('Resident Evil', 29.99, 'images/residentevil4.webp')">Thêm vào giỏ</button>
             </div>
             
-                <div class="product-card reveal">
-                    <div class="card-img-wrapper">
-                        <a href="games/game11.html">
-                            <img src="images/ark.webp" alt="ARK: Survival Evolved">
-                        </a>
-                    </div>
-                    <h3>ARK: Survival Ascended</h3>
-                    <p class="genre">Survival / Open World</p>
-                    <p class="price" style="color: #e74c3c;">$19.99</p>
-                    <button onclick="addToCart('ARK: Survival Ascended', 19.99, 'images/ark.webp')">Thêm vào giỏ</button>
+            <div class="product-card reveal">
+                <div class="card-img-wrapper">
+                    <a href="games/game11.html">
+                        <img src="images/ark.webp" alt="ARK: Survival Evolved">
+                    </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('ARK: Survival Ascended')" data-game="ARK: Survival Ascended"></i>
                 </div>
+                <h3>ARK: Survival Ascended</h3>
+                <p class="genre">Survival / Open World</p>
+                <p class="price" style="color: #e74c3c;">$19.99</p>
+                <button onclick="addToCart('ARK: Survival Ascended', 19.99, 'images/ark.webp')">Thêm vào giỏ</button>
+            </div>
 
             <div class="product-card reveal">
                 <div class="card-img-wrapper">
                     <a href="games/game12.html">
                         <img src="images/minecraft.jpg" alt="Minecraft">
                     </a>
+                    <i class="fas fa-heart wishlist-btn" onclick="toggleWishlist('Minecraft')" data-game="Minecraft"></i>
                 </div>
                 <h3>Minecraft</h3>
                 <p class="genre">Sandbox / Creative</p>
@@ -284,8 +316,6 @@
         </div>
     </div>
 
-    <script type="module" src="firebase.js"></script>
-    <script type="module" src="auth.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>

@@ -155,7 +155,6 @@ window.renderCart = function() {
         // 👇👇👇 XỬ LÝ ẢNH SIÊU CỨNG (V3) 👇👇👇
         let cleanPath = item.image;
         // Nếu đường dẫn có chứa chữ "images/", ta chỉ lấy từ đó trở về sau
-        // Ví dụ: "../images/pic.png" -> "images/pic.png"
         if (cleanPath.includes("images/")) {
             cleanPath = cleanPath.substring(cleanPath.lastIndexOf("images/"));
         }
@@ -199,7 +198,6 @@ window.addToCart = function(name, price, imageSrc) {
     window.renderCart(); 
     
     // --- Hiệu ứng bay (Giữ nguyên logic cũ để tìm ảnh trên giao diện) ---
-    // Lưu ý: Đoạn tìm ảnh để bay vẫn dùng imageSrc gốc để khớp với HTML hiện tại
     const productImg = document.querySelector('.detail-img') || document.querySelector(`img[alt="${name}"]`);
     const cartIcon = document.querySelector('.cart-icon');
     
@@ -224,7 +222,7 @@ window.addToCart = function(name, price, imageSrc) {
         showToast(`Đã thêm "${name}" thành công!`);
         if(cartIcon) { cartIcon.classList.add('cart-shake'); setTimeout(() => cartIcon.classList.remove('cart-shake'), 400); }
     }
-};
+};  
 
 function showToast(message, isWarning = false) {
     const toast = document.getElementById("toast");
@@ -328,19 +326,36 @@ window.openCheckout = function() {
     payAmount.innerText = `$${total.toFixed(2)} (Khoảng ${(total * 24000).toLocaleString()} VND)`;
     transferContent.innerText = orderId;
 
+    // 👇 NÂNG CẤP GIAO DIỆN 0Đ (ICON QUÀ TẶNG) 👇
     if (total === 0) {
         if (qrSection) qrSection.style.display = 'none';
         if (bankInfo) bankInfo.style.display = 'none'; 
-        confirmBtn.innerHTML = '<i class="fas fa-gift"></i> NHẬN GAME MIỄN PHÍ';
+        
+        // Thêm icon quà tặng
+        let giftHtml = '<div class="free-gift-icon"><i class="fas fa-gift"></i></div>';
+        const infoSection = document.querySelector('.info-section');
+        if (!infoSection.querySelector('.free-gift-icon')) {
+            infoSection.insertAdjacentHTML('afterbegin', giftHtml);
+        } else {
+            infoSection.querySelector('.free-gift-icon').style.display = 'block';
+        }
+
+        confirmBtn.innerHTML = '<i class="fas fa-arrow-right"></i> NHẬN GAME NGAY';
     } else {
         if (qrSection) qrSection.style.display = 'block'; 
         if (bankInfo) bankInfo.style.display = 'block';   
+        
+        // Ẩn icon quà tặng
+        const giftIcon = document.querySelector('.free-gift-icon');
+        if (giftIcon) giftIcon.style.display = 'none';
+
         confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN';
         
         const vndAmount = total * 24000;
         const qrSource = `https://img.vietqr.io/image/${MY_BANK.BANK_ID}-${MY_BANK.ACCOUNT_NO}-${MY_BANK.TEMPLATE}.png?amount=${vndAmount}&addInfo=${orderId}&accountName=${encodeURIComponent(MY_BANK.ACCOUNT_NAME)}`;
         qrImg.src = qrSource;
     }
+    // 👆 KẾT THÚC NÂNG CẤP 👆
     
     modal.style.display = "flex"; 
     window.toggleCart(); 

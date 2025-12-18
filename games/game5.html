@@ -93,34 +93,134 @@
     <script type="module">
         import { auth, db } from "../firebase.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-        const GAME_ID = 'game5_reviews';
+        import { ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        // !!! QUAN TRỌNG: ID CỦA GAME 4
+        const GAME_ID = 'game5_reviews'; 
+
         let currentUser = null;
-        onAuthStateChanged(auth, (user) => { if (user) { currentUser = user; document.getElementById('reviewForm').style.display='block'; document.getElementById('loginWarning').style.display='none'; document.getElementById('currentUserLabel').innerText = user.email; } else { currentUser=null; document.getElementById('reviewForm').style.display='none'; document.getElementById('loginWarning').style.display='block'; } });
+
+        // 1. KIỂM TRA ĐĂNG NHẬP
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('reviewForm').style.display = 'block';
+                document.getElementById('loginWarning').style.display = 'none';
+                document.getElementById('currentUserLabel').innerText = user.displayName || user.email;
+            } else {
+                currentUser = null;
+                document.getElementById('reviewForm').style.display = 'none';
+                document.getElementById('loginWarning').style.display = 'block';
+            }
+        });
+
+        // 2. LOGIC NGÔI SAO (ĐÃ SỬA LỖI TÔ MÀU + THÊM HOVER)
         const stars = document.querySelectorAll('.star-widget span');
+        const widget = document.getElementById('starWidget');
         const ratingValueInput = document.getElementById('ratingValue');
         const ratingText = document.getElementById('ratingText');
-        const ratingLabels = ["Rất tệ","Tệ","Bình thường","Tốt","Tuyệt vời"];
-
+        const ratingLabels = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Tuyệt vời"];
+        
+        // Hàm tô màu sao (Code cũ của bạn bị thiếu hàm này)
         function highlightStars(count) {
             stars.forEach((s, i) => {
-                if (i < count) { s.classList.add('selected'); s.style.color = '#f1c40f'; }
-                else { s.classList.remove('selected'); s.style.color = '#444'; }
+                if (i < count) {
+                    s.classList.add('selected');
+                    s.style.color = "#f1c40f";
+                } else {
+                    s.classList.remove('selected');
+                    s.style.color = "#444";
+                }
             });
         }
 
+        // Xử lý sự kiện chuột
         stars.forEach((star, index) => {
-            star.addEventListener('click', () => {
-                ratingValueInput.value = index + 1;
+            // Rê chuột vào -> Sáng sao
+            star.addEventListener('mouseover', () => {
                 highlightStars(index + 1);
                 ratingText.innerText = ratingLabels[index];
-                ratingText.style.color = '#f1c40f';
+                ratingText.style.color = "#f1c40f";
             });
-            star.addEventListener('mouseover', () => { highlightStars(index + 1); });
-            star.addEventListener('mouseout', () => { const current = parseInt(ratingValueInput.value) || 0; highlightStars(current); });
+
+            // Click -> Chọn sao
+            star.addEventListener('click', () => {
+                ratingValueInput.value = index + 1;
+                star.style.transform = "scale(1.3)"; // Hiệu ứng nhún
+                setTimeout(()=> star.style.transform = "scale(1)", 200);
+            });
         });
-        document.getElementById('btnSubmitReview')?.addEventListener('click', ()=>{ if(!currentUser) return; const comment = document.getElementById('inputComment').value.trim(); const starsSelected = parseInt(ratingValueInput.value); if(comment==="") { alert('Vui lòng nhập nội dung!'); return; } if(starsSelected===0){ alert('Vui lòng chọn số sao!'); return;} push(ref(db, 'reviews/' + GAME_ID), { user: currentUser.email, stars: starsSelected, content: comment, createdAt: new Date().toLocaleString('vi-VN') }).then(()=>{ document.getElementById('inputComment').value=''; ratingValueInput.value=0; highlightStars(0); ratingText.innerText = 'Chưa chọn sao'; ratingText.style.color = '#888'; alert('Đã gửi đánh giá!'); }).catch(()=>{}); });
-        const reviewsRef = ref(db,'reviews/'+GAME_ID); onValue(reviewsRef, (snapshot)=>{ const list = document.getElementById('reviewList'); list.innerHTML=''; if(snapshot.exists()){ const reviews = Object.values(snapshot.val()).reverse(); reviews.forEach(review=>{ const starString = '★'.repeat(review.stars) + '☆'.repeat(5-review.stars); const avatarChar = review.user.charAt(0).toUpperCase(); list.innerHTML += `<div class="review-card"><div class="user-header"><div style="display:flex;align-items:center;gap:10px;"><div style="width:30px;height:30px;background:#333;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#e74c3c;font-weight:bold;">${avatarChar}</div><span class="username">${review.user}</span></div><span class="rating">${starString}</span></div><span class="review-date">${review.createdAt}</span><p class="review-text">${review.content}</p></div>`; }); } else { list.innerHTML = "<p style='color:#666;text-align:center'>Chưa có đánh giá nào.</p>"; } });
+
+        // Rê chuột ra ngoài -> Trả về trạng thái đã chọn
+        widget.addEventListener('mouseleave', () => {
+            const currentRating = parseInt(ratingValueInput.value);
+            if (currentRating > 0) {
+                highlightStars(currentRating);
+                ratingText.innerText = ratingLabels[currentRating - 1];
+            } else {
+                highlightStars(0);
+                ratingText.innerText = "Chưa chọn sao";
+                ratingText.style.color = "#888";
+            }
+        });
+
+        // 3. GỬI ĐÁNH GIÁ
+        document.getElementById('btnSubmitReview').addEventListener('click', () => {
+            if (!currentUser) return;
+            const comment = document.getElementById('inputComment').value.trim();
+            const starsSelected = parseInt(ratingValueInput.value);
+
+            if (starsSelected === 0) { alert("Vui lòng chọn số sao!"); return; }
+            if (comment === "") { alert("Vui lòng nhập nội dung!"); return; }
+
+            const btn = document.getElementById('btnSubmitReview');
+            btn.innerText = "Đang gửi..."; btn.disabled = true;
+
+            push(ref(db, 'reviews/' + GAME_ID), {
+                user: currentUser.displayName || currentUser.email.split('@')[0],
+                email: currentUser.email,
+                stars: starsSelected,
+                content: comment,
+                createdAt: new Date().toLocaleString('vi-VN')
+            }).then(() => {
+                document.getElementById('inputComment').value = '';
+                ratingValueInput.value = 0;
+                highlightStars(0); // Reset màu sao về đen
+                ratingText.innerText = "Chưa chọn sao";
+                ratingText.style.color = "#888";
+                alert("Đã gửi đánh giá!");
+            }).catch(() => alert("Lỗi kết nối!")).finally(() => {
+                btn.innerText = "Gửi đánh giá"; btn.disabled = false;
+            });
+        });
+
+        // 4. LOAD ĐÁNH GIÁ
+        const reviewsRef = ref(db, 'reviews/' + GAME_ID);
+        onValue(reviewsRef, (snapshot) => {
+            const list = document.getElementById('reviewList');
+            list.innerHTML = "";
+            if (snapshot.exists()) {
+                const reviews = Object.values(snapshot.val()).reverse();
+                reviews.forEach(review => {
+                    const starString = '★'.repeat(review.stars) + '☆'.repeat(5 - review.stars);
+                    const avatarChar = review.user.charAt(0).toUpperCase();
+                    list.innerHTML += `
+                        <div class="review-card">
+                            <div class="user-header">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="width:30px;height:30px;background:#333;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#e74c3c;font-weight:bold;">${avatarChar}</div>
+                                    <span class="username">${review.user}</span>
+                                </div>
+                                <span class="rating">${starString}</span>
+                            </div>
+                            <span class="review-date">${review.createdAt}</span>
+                            <p class="review-text">${review.content}</p>
+                        </div>`;
+                });
+            } else {
+                list.innerHTML = "<p style='color:#666;text-align:center'>Chưa có đánh giá nào.</p>";
+            }
+        });
     </script>
     <script type="module" src="../firebase.js"></script>
     <script type="module" src="../auth.js"></script>

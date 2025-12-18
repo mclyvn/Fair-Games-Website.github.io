@@ -9,9 +9,100 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        .member-card { background: rgba(30,30,30,0.6); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
-        .member-card:hover { transform: translateY(-10px); border-color: #e74c3c; box-shadow: 0 0 20px rgba(231,76,60,0.3); }
-        .leader-card { border: 2px solid #e74c3c; box-shadow: 0 0 15px rgba(231,76,60,0.2); }
+        /* --- CSS RIÊNG ĐỂ FIX LỖI FONT & SIZE CHO MEMBER CARD --- */
+        
+        /* 1. Cấu trúc thẻ Card */
+        .member-card { 
+            background: rgba(30,30,30,0.6); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            transition: 0.3s; 
+            padding: 35px 20px; /* Tăng padding cho thoáng */
+            border-radius: 12px;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            height: 100%; /* Để các thẻ bằng nhau */
+            text-decoration: none; /* Bỏ gạch chân */
+        }
+        
+        /* Hiệu ứng Hover */
+        .member-card:hover { 
+            transform: translateY(-10px); 
+            border-color: #e74c3c; 
+            box-shadow: 0 0 25px rgba(231,76,60,0.25); 
+            background: rgba(40,40,40,0.8);
+        }
+
+        /* Card của Leader */
+        .leader-card { 
+            border: 2px solid #e74c3c; 
+            box-shadow: 0 0 15px rgba(231,76,60,0.15); 
+            background: rgba(231, 76, 60, 0.05);
+        }
+
+        /* 2. Avatar */
+        .member-avatar {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            border: 3px solid #444;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: #666; background: #111;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .member-card:hover .member-avatar, .leader-card .member-avatar {
+            border-color: #e74c3c; color: #e74c3c; box-shadow: 0 0 15px rgba(231,76,60,0.4);
+        }
+
+        /* 3. Tên thành viên (Sửa font to, rõ) */
+        .member-name {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 26px; /* To hơn cũ */
+            font-weight: 800; /* Rất đậm */
+            color: #fff;
+            text-transform: uppercase;
+            margin: 0 0 5px 0;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .member-card:hover .member-name { color: #e74c3c; }
+
+        /* 4. Chức vụ (Role) */
+        .member-role {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            color: #e74c3c;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        /* 5. MSSV (Fix lỗi font monospace xấu) */
+        .member-id {
+            font-family: 'Rajdhani', sans-serif !important; /* Ép dùng font đẹp */
+            font-weight: 600;
+            background: #000;
+            color: #999;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            letter-spacing: 1px;
+        }
+        .member-card:hover .member-id { border-color: #666; color: #fff; }
+
+        /* 6. Bio (Mô tả) */
+        .member-bio {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            color: #ccc;
+            line-height: 1.5;
+            text-align: center;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -160,17 +251,46 @@
     </div>
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
 
-    <div id="checkoutModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeCheckout()">&times;</span>
-            <h2>Thanh toán</h2>
-            <p>Điền thông tin nhận key:</p>
-            <form onsubmit="processPayment(event)">
-                <input type="text" placeholder="Họ tên" required class="input-field">
-                <input type="email" placeholder="Email" required class="input-field">
-                <div class="payment-summary">Tổng: <span id="paymentTotal">$0.00</span></div>
-                <button type="submit" class="pay-btn">Xác nhận</button>
-            </form>
+    <div id="paymentModal" class="modal">
+        <div class="modal-content payment-box">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            
+            <div class="payment-header">
+                <h2>THANH TOÁN ĐƠN HÀNG</h2>
+            </div>
+            
+            <div class="payment-container">
+                <div class="qr-section">
+                    <p>Quét mã bằng ứng dụng ngân hàng:</p>
+                    <div class="qr-wrapper">
+                        <img id="qrImage" src="" alt="QR Code" class="qr-img">
+                    </div>
+                    <div class="transfer-note">
+                        Nội dung chuyển khoản bắt buộc:
+                        <span id="transferContent" class="transfer-code">Loading...</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Thông tin thanh toán</h3>
+                    <p>Tổng tiền cần thanh toán:</p>
+                    <p id="payAmount" class="total-price">0đ</p>
+                    
+                    <div class="bank-card">
+                        <p>Ngân hàng: <b>MB Bank</b></p>
+                        <p>Chủ tài khoản: <b>DO QUANG THANG</b></p>
+                        <p>Số tài khoản: <b style="color: #f1c40f; font-size: 1.2em;">0357876625</b></p>
+                    </div>
+
+                    <p style="font-style: italic; font-size: 0.9em; color: #888; margin-bottom: 20px;">
+                        <i class="fas fa-info-circle"></i> Lưu ý: Hệ thống sẽ tự động xử lý sau khi bạn chuyển khoản thành công. Vui lòng không tắt trình duyệt.
+                    </p>
+
+                    <button class="confirm-pay-btn" onclick="confirmPayment()">
+                        <i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

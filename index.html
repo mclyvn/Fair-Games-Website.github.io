@@ -48,9 +48,26 @@
             </div>
         </div>
 
+        <div class="tag-filter-wrapper reveal">
+            <div class="tag-filter-label">Lọc theo thể loại:</div>
+            <div class="tag-filter-buttons">
+                <button class="tag-btn active" onclick="filterByTag('all')">Tất cả</button>
+                <button class="tag-btn" onclick="filterByTag('action')">Action</button>
+                <button class="tag-btn" onclick="filterByTag('rpg')">RPG</button>
+                <button class="tag-btn" onclick="filterByTag('adventure')">Adventure</button>
+                <button class="tag-btn" onclick="filterByTag('shooter')">Shooter</button>
+                <button class="tag-btn" onclick="filterByTag('strategy')">Strategy</button>
+                <button class="tag-btn" onclick="filterByTag('casual')">Casual</button>
+                <button class="tag-btn" onclick="filterByTag('survival')">Survival</button>
+                <button class="tag-btn" onclick="filterByTag('horror')">Horror</button>
+                <button class="tag-btn" onclick="filterByTag('sandbox')">Sandbox</button>
+                <button class="tag-btn" onclick="filterByTag('arcade')">Arcade</button>
+            </div>
+        </div>
+
         <div class="product-grid" id="gameGrid">
             
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="action rpg">
                 <div class="badge hot">HOT</div>
                 <div class="card-img-wrapper">
                     <a href="games/game1.html">
@@ -63,7 +80,7 @@
                 <button onclick="addToCart('Ace Slayer', 0, 'images/slayer.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="adventure">
                 <div class="card-img-wrapper">
                     <a href="games/game2.html">
                         <img src="images/bunny.png" alt="Bunny Adventure">
@@ -75,7 +92,7 @@
                 <button onclick="addToCart('Bunny Adventure', 0, 'images/bunny.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="shooter">
                 <div class="card-img-wrapper">
                     <a href="games/game3.html">
                         <img src="images/pubg.jpg" alt="PUBG Mobile">
@@ -87,7 +104,7 @@
                 <button onclick="addToCart('PUBG Mobile', 0, 'images/pubg.jpg')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="rpg action">
                 <div class="badge new">NEW</div>
                 <div class="card-img-wrapper">
                     <a href="games/game4.html">
@@ -100,7 +117,7 @@
                 <button onclick="addToCart('Elden Ring', 59.99, 'images/eden-ring.jpg')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="shooter survival">
                 <div class="card-img-wrapper">
                     <a href="games/game5.html">
                         <img src="images/freefire.jpg" alt="FreeFire">
@@ -112,7 +129,7 @@
                 <button onclick="addToCart('Free Fire', 0, 'images/freefire.jpg')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="strategy">
                 <div class="card-img-wrapper">
                     <a href="games/game6.html">
                         <img src="images/earth2130.png" alt="Earth 2130">
@@ -124,7 +141,7 @@
                 <button onclick="addToCart('Earth 2130', 0, 'images/earth2130.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="arcade">
                 <div class="card-img-wrapper">
                     <a href="games/game7.html">
                         <img src="images/ufo.png" alt="UFO Attack">
@@ -136,7 +153,7 @@
                 <button onclick="addToCart('UFO Attack', 0, 'images/ufo.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="casual arcade">
                 <div class="card-img-wrapper">
                     <a href="games/game8.html">
                         <img src="images/apple.png" alt="Apple Collector">
@@ -148,7 +165,7 @@
                 <button onclick="addToCart('Apple Collector', 0, 'images/apple.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="action rpg">
                 <div class="card-img-wrapper">
                     <a href="games/game9.html">
                         <img src="images/monsterhunter.avif" alt="Monster Hunter">
@@ -160,7 +177,7 @@
                 <button onclick="addToCart('Monster Hunter', 29.99, 'images/monsterhunter.avif')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="horror survival">
                 <div class="card-img-wrapper">
                     <a href="games/game10.html">
                         <img src="images/residentevil4.webp" alt="Resident Evil">
@@ -172,7 +189,7 @@
                 <button onclick="addToCart('Resident Evil', 29.99, 'images/residentevil4.webp')">Thêm vào giỏ</button>
             </div>
             
-                <div class="product-card reveal">
+                <div class="product-card reveal" data-tags="survival action">
                     <div class="card-img-wrapper">
                         <a href="games/game11.html">
                             <img src="images/ark.webp" alt="ARK: Survival Evolved">
@@ -184,7 +201,7 @@
                     <button onclick="addToCart('ARK: Survival Ascended', 19.99, 'images/ark.webp')">Thêm vào giỏ</button>
                 </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="sandbox casual">
                 <div class="card-img-wrapper">
                     <a href="games/game12.html">
                         <img src="images/minecraft.jpg" alt="Minecraft">

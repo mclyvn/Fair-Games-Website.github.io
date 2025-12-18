@@ -119,6 +119,39 @@ nav a.active::after { width: 100%; }
 }
 .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #888; }
 
+/* Tag Filter Buttons */
+.tag-filter-wrapper {
+    margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+}
+
+.tag-filter-label {
+    font-size: 14px; font-weight: 700; color: #e74c3c; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 15px; display: block;
+}
+
+.tag-filter-buttons {
+    display: flex; flex-wrap: wrap; gap: 10px;
+}
+
+.tag-btn {
+    padding: 10px 18px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 25px;
+    color: #aaa; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: 0.3s;
+    text-transform: capitalize; letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.tag-btn:hover {
+    background: rgba(231, 76, 60, 0.2); border-color: #e74c3c; color: #e74c3c;
+}
+
+.tag-btn.active {
+    background: #e74c3c; border-color: #e74c3c; color: white;
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.5);
+}
+
 .product-grid {
     display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px;
 }

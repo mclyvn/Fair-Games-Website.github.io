@@ -784,14 +784,14 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
     font-family: 'Oswald', sans-serif;
     letter-spacing: 4px;
     text-shadow: 0 0 15px #e74c3c;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     border-bottom: 1px solid #333;
     padding-bottom: 20px;
 }
 
 /* 2. Phần hiển thị tiền */
 #payAmount {
-    font-size: 2.5em; /* To hơn nữa */
+    font-size: 2em; /* To hơn nữa */
     color: #e74c3c;
     text-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
     margin: 10px 0 20px 0;
@@ -859,13 +859,18 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
 /* --- FIX LỖI MODAL BỊ QUÁ TO --- */
 
 .payment-box {
-    width: 95%; /* Trên điện thoại thì lấy 95% màn hình */
-    max-width: 850px !important; /* QUAN TRỌNG: Giới hạn chiều rộng tối đa chỉ 850px */
+    width: auto;                 /* ❌ bỏ 95% */
+    max-width: 900px;            /* 👈 chiều ngang cố định */
+    max-height: 90vh;            /* 👈 KHÔNG cao quá màn hình */
+    overflow-y: auto;            /* nếu nội dung dài thì cuộn */
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    transition: max-width 0.3s ease; /* Hiệu ứng co giãn mượt mà */
+
+    background: linear-gradient(145deg, #121212, #1a0505);
+    border-radius: 15px;
+    border: 2px solid #e74c3c;
+    box-shadow: 0 0 30px rgba(231,76,60,0.3);
 }
+
 
 /* Khi ở chế độ gọn (0đ) */
 .payment-box.compact {

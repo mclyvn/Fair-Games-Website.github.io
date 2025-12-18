@@ -164,6 +164,7 @@
             <h2>Thông tin cá nhân</h2>
             <div class="info-grid">
                 <div class="info-item"><span class="info-label">Email</span><span id="displayEmail" class="info-value">...</span></div>
+                <div class="info-item"><span class="info-label">Số điện thoại</span><span id="displayPhone" class="info-value">...</span></div>
                 <div class="info-item"><span class="info-label">Ngày tham gia</span><span id="joinDate" class="info-value">...</span></div>
                 <div class="info-item"><span class="info-label">Số Game đã mua</span><span id="gamesOwned" class="info-value" style="color: #e74c3c;">0</span></div>
                 <div class="info-item"><span class="info-label">Sở thích</span><span id="interests" class="info-value">...</span></div>
@@ -190,7 +191,7 @@
             <form onsubmit="saveProfileChanges(event)">
                 <div class="edit-form-group"><label>Tên hiển thị</label><input type="text" id="editDisplayName" class="edit-input" required></div>
                 <div class="edit-form-group"><label>Username</label><input type="text" id="editUsername" class="edit-input"></div>
-                <div class="edit-form-group"><label>Sở thích</label><input type="text" id="editInterests" class="edit-input"></div>
+                <div class="edit-form-group"><label>Số điện thoại</label><input type="text" id="editPhone" class="edit-input"></div> <div class="edit-form-group"><label>Sở thích</label><input type="text" id="editInterests" class="edit-input"></div>
                 <div class="edit-form-group"><label>Bio</label><textarea id="editBio" class="edit-input" style="height: 80px;"></textarea></div>
                 <button type="submit" class="pay-btn" style="width: 100%;">LƯU THAY ĐỔI</button>
             </form>
@@ -367,6 +368,7 @@
                 document.getElementById('userBio').innerText = data.bio || "Người dùng này rất bí ẩn...";
                 if (!data.joinDate) update(ref(db, 'users/' + userId), { joinDate: new Date().toLocaleDateString('vi-VN') });
                 document.getElementById('sellerContactEmail').value = email;
+                document.getElementById('displayPhone').innerText = data.phone || "Chưa cập nhật";
             });
         }
 
@@ -375,6 +377,7 @@
             document.getElementById('editUsername').value = document.getElementById('username').innerText.replace('@', '');
             document.getElementById('editInterests').value = currentProfileData.interests || "";
             document.getElementById('editBio').value = currentProfileData.bio || "";
+            document.getElementById('editPhone').value = currentProfileData.phone || "";
             document.getElementById('editProfileModal').style.display = "flex";
         };
         window.closeEditModal = function() { document.getElementById('editProfileModal').style.display = "none"; };
@@ -385,6 +388,7 @@
                 update(ref(db, 'users/' + currentUserUID), {
                     displayName: document.getElementById('editDisplayName').value,
                     username: document.getElementById('editUsername').value,
+                    phone: document.getElementById('editPhone').value,
                     interests: document.getElementById('editInterests').value,
                     bio: document.getElementById('editBio').value
                 }).then(() => { alert("Cập nhật thành công!"); closeEditModal(); })

@@ -1,14 +1,18 @@
-// 1. IMPORT
+// ============================================================
+// 1. IMPORT & CONFIG
+// ============================================================
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, set, get, child, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// 2. KHỞI TẠO BIẾN
+// ============================================================
+// 2. KHỞI TẠO BIẾN TOÀN CỤC
+// ============================================================
 let cart = []; 
 let wishlist = []; 
 let currentUser = null; 
 
-// --- DATABASE LINK TẢI GAME ---
+// Danh sách Link tải game
 const GAME_DATABASE = {
     "Ace Slayer": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "Bunny Adventure": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
@@ -32,7 +36,9 @@ function loadGuestCartFromLocalStorage() {
 }
 loadGuestCartFromLocalStorage();
 
-// 3. AUTH & LOAD DATA
+// ============================================================
+// 3. XỬ LÝ ĐĂNG NHẬP / ĐĂNG XUẤT (AUTH)
+// ============================================================
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
@@ -51,7 +57,22 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// 4. DATA FUNCTIONS (CART & WISHLIST)
+function updateUserBox(email) {
+    const userBox = document.getElementById("userBox");
+    const isInGameFolder = window.location.pathname.includes("/games/");
+    const pathPrefix = isInGameFolder ? "../" : "";
+    if (email) {
+        userBox.innerHTML = `<a href="${pathPrefix}profile.html" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-right: 15px; display: inline-flex; align-items: center; gap: 5px;"><i class="fas fa-user-circle" style="font-size: 1.2em;"></i><span style="text-transform: none;">${email.split('@')[0]}</span></a><button onclick="logout()" style="padding: 5px 10px; background: transparent; border: 1px solid #666; color: #ccc; cursor: pointer; border-radius: 4px;">Đăng xuất</button>`;
+    } else {
+        userBox.innerHTML = `<a href="${pathPrefix}login.html" style="color: #fff; text-decoration: none; font-weight: bold;">Đăng nhập</a>`;
+    }
+}
+
+window.logout = function() { signOut(auth).then(() => location.reload()).catch(console.error); };
+
+// ============================================================
+// 4. DỮ LIỆU & ĐỒNG BỘ (CART + WISHLIST)
+// ============================================================
 function loadCartFromFirebase(userId) {
     const dbRef = ref(db);
     get(child(dbRef, `carts/${userId}`)).then((snapshot) => {
@@ -76,7 +97,9 @@ function saveData() {
     }
 }
 
-// 5. WISHLIST LOGIC
+// ============================================================
+// 5. CHỨC NĂNG YÊU THÍCH (WISHLIST)
+// ============================================================
 window.toggleWishlist = function(gameName) {
     if (!currentUser) {
         alert("Vui lòng đăng nhập để thêm vào Yêu thích!");
@@ -106,7 +129,9 @@ function updateWishlistUI() {
     });
 }
 
-// 6. CART UI & LOGIC
+// ============================================================
+// 6. GIỎ HÀNG & UI
+// ============================================================
 window.renderCart = function() {
     const container = document.getElementById('cartItems');
     const countLabel = document.getElementById('cart-count');
@@ -149,9 +174,9 @@ window.addToCart = function(name, price, imageSrc) {
     saveData();
     window.renderCart(); 
     
-    // Animation bay vào giỏ
     const productImg = document.querySelector('.detail-img') || document.querySelector(`img[alt="${name}"]`);
     const cartIcon = document.querySelector('.cart-icon');
+    
     if (productImg && cartIcon) {
         const flyImg = productImg.cloneNode();
         flyImg.classList.add('fly-item');
@@ -188,7 +213,11 @@ function showToast(message, isWarning = false) {
 window.removeFromCart = function(index) { cart.splice(index, 1); saveData(); window.renderCart(); };
 window.toggleCart = function() { document.getElementById('cartSidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); };
 
-// 7. FILTER & SORT
+// ============================================================
+// 7. BỘ LỌC VÀ SẮP XẾP (FILTER & SORT)
+// ============================================================
+
+// 1. FILTER GAME (Logic của bạn)
 window.filterGame = function(category) {
     let buttons = document.getElementsByClassName('filter-btn');
     for (let btn of buttons) {
@@ -207,6 +236,32 @@ window.filterGame = function(category) {
     }
 };
 
+// 2. FILTER BY TAG (Logic của đồng đội bạn thêm vào - Đã khôi phục)
+window.filterByTag = function(tag) {
+    let cards = document.getElementsByClassName('product-card');
+    
+    // Update active button state
+    document.querySelectorAll('.tag-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    if(event && event.target) event.target.classList.add('active');
+    
+    // Filter cards based on tag
+    for (let i = 0; i < cards.length; i++) {
+        let cardTags = cards[i].getAttribute('data-tags');
+        
+        if (tag === 'all') {
+            cards[i].style.display = "";
+        } else if (cardTags && cardTags.includes(tag)) {
+            cards[i].style.display = "";
+        } else {
+            cards[i].style.display = "none";
+        }
+    }
+};
+
+// 3. SORT GAMES (Logic của đồng đội bạn - Giữ nguyên 100%)
 window.sortGames = function() {
     let sortValue = document.getElementById('sortSelect').value;
     let container = document.getElementById('gameGrid');
@@ -231,8 +286,20 @@ window.sortGames = function() {
     window.dispatchEvent(new Event('scroll'));
 };
 
-// 8. PAYMENT & QR
+window.searchGame = function() {
+    let input = document.getElementById('searchInput').value.toLowerCase();
+    let cards = document.getElementsByClassName('product-card');
+    for (let i = 0; i < cards.length; i++) {
+        let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+        cards[i].style.display = title.includes(input) ? "" : "none";
+    }
+};
+
+// ============================================================
+// 8. THANH TOÁN (PAYMENT)
+// ============================================================
 const MY_BANK = { BANK_ID: 'MB', ACCOUNT_NO: '0357876625', ACCOUNT_NAME: 'DO QUANG THANG', TEMPLATE: 'compact2' };
+
 window.openCheckout = function() {
     if (cart.length === 0) { alert("Giỏ hàng đang trống!"); return; }
     if (!currentUser) { alert("Vui lòng đăng nhập!"); window.location.href = "login.html"; return; }
@@ -242,20 +309,25 @@ window.openCheckout = function() {
     const transferContent = document.getElementById('transferContent');
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     const orderId = 'FAIR' + Math.floor(Math.random() * 10000);
+    
     payAmount.innerText = `$${total.toFixed(2)} (Khoảng ${(total * 24000).toLocaleString()} VND)`;
     transferContent.innerText = orderId;
     const vndAmount = total * 24000;
     const qrSource = `https://img.vietqr.io/image/${MY_BANK.BANK_ID}-${MY_BANK.ACCOUNT_NO}-${MY_BANK.TEMPLATE}.png?amount=${vndAmount}&addInfo=${orderId}&accountName=${encodeURIComponent(MY_BANK.ACCOUNT_NAME)}`;
+    
     qrImg.src = qrSource;
     modal.style.display = "flex"; 
     window.toggleCart(); 
 };
+
 window.closePaymentModal = function() { document.getElementById('paymentModal').style.display = "none"; };
+
 window.confirmPayment = function() {
     const btn = document.querySelector('.confirm-pay-btn');
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG KIỂM TRA...';
     btn.style.opacity = "0.7"; btn.disabled = true;
+    
     setTimeout(() => {
         const itemsWithLinks = cart.map(item => { return { ...item, downloadLink: GAME_DATABASE[item.name] || "#" }; });
         const orderData = {
@@ -277,52 +349,9 @@ window.confirmPayment = function() {
     }, 2000);
 };
 
-// 9. UI HELPER & LOGOUT
-window.searchGame = function() {
-    let input = document.getElementById('searchInput').value.toLowerCase();
-    let cards = document.getElementsByClassName('product-card');
-    for (let i = 0; i < cards.length; i++) {
-        let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-        cards[i].style.display = title.includes(input) ? "" : "none";
-    }
-};
-
-// Tag Filter Function
-window.filterByTag = function(tag) {
-    let cards = document.getElementsByClassName('product-card');
-    
-    // Update active button state
-    document.querySelectorAll('.tag-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    event.target.classList.add('active');
-    
-    // Filter cards based on tag
-    for (let i = 0; i < cards.length; i++) {
-        let cardTags = cards[i].getAttribute('data-tags');
-        
-        if (tag === 'all') {
-            cards[i].style.display = "";
-        } else if (cardTags && cardTags.includes(tag)) {
-            cards[i].style.display = "";
-        } else {
-            cards[i].style.display = "none";
-        }
-    }
-};
-
-function updateUserBox(email) {
-    const userBox = document.getElementById("userBox");
-    const isInGameFolder = window.location.pathname.includes("/games/");
-    const pathPrefix = isInGameFolder ? "../" : "";
-    if (email) {
-        userBox.innerHTML = `<a href="${pathPrefix}profile.html" style="color: #e74c3c; text-decoration: none; font-weight: bold; margin-right: 15px; display: inline-flex; align-items: center; gap: 5px;"><i class="fas fa-user-circle" style="font-size: 1.2em;"></i><span style="text-transform: none;">${email.split('@')[0]}</span></a><button onclick="logout()" style="padding: 5px 10px; background: transparent; border: 1px solid #666; color: #ccc; cursor: pointer; border-radius: 4px;">Đăng xuất</button>`;
-    } else {
-        userBox.innerHTML = `<a href="${pathPrefix}login.html" style="color: #fff; text-decoration: none; font-weight: bold;">Đăng nhập</a>`;
-    }
-}
-window.logout = function() { signOut(auth).then(() => location.reload()).catch(console.error); };
+// ============================================================
+// 9. HIỆU ỨNG UI KHÁC
+// ============================================================
 window.addEventListener('scroll', reveal);
 function reveal() {
     var reveals = document.querySelectorAll('.reveal');
@@ -334,10 +363,19 @@ function reveal() {
     }
 }
 reveal();
-const logo = document.querySelector('.logo');
-if (logo) { logo.style.cursor = 'pointer'; logo.addEventListener('click', function() { const isInGameFolder = window.location.pathname.includes("/games/"); window.location.href = (isInGameFolder ? "../" : "") + "index.html"; }); }
 
-// 10. TAWK.TO & CHAT MENU (ĐÃ FIX SCOPE)
+const logo = document.querySelector('.logo');
+if (logo) { 
+    logo.style.cursor = 'pointer'; 
+    logo.addEventListener('click', function() { 
+        const isInGameFolder = window.location.pathname.includes("/games/"); 
+        window.location.href = (isInGameFolder ? "../" : "") + "index.html"; 
+    }); 
+}
+
+// ============================================================
+// 10. CHAT MENU & TAWK.TO (ĐÃ SỬA LỖI MODULE)
+// ============================================================
 const PAGE_ID = "981930334992893"; 
 const TAWK_SRC = 'https://embed.tawk.to/69439d6ea93b66197f06d88c/1jco1tu20'; 
 
@@ -354,7 +392,6 @@ styleChat.innerHTML = `
     .btn-tawk { background: #03a84e; transition-delay: 0.05s; }
     .sub-chat-btn::before { content: attr(data-tooltip); position: absolute; right: 60px; background: rgba(0,0,0,0.8); color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px; opacity: 0; transition: 0.3s; pointer-events: none; white-space: nowrap; }
     .sub-chat-btn:hover::before { opacity: 1; }
-    
     #tawk-bubble-container, .tawk-bubble-container, div[class*="tawk-bubble"] { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
     .tawk-min-container { display: none !important; }
 `;

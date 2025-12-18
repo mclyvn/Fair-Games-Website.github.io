@@ -3,50 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập | Fair Games</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Đăng nhập - Fair Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Rajdhani', sans-serif;
+            background: #0b0b0b;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('images/slayer.png'); /* Ảnh nền mờ */
+            background-size: cover;
+            background-position: center;
+        }
+
+        .login-container {
+            background: rgba(20, 20, 20, 0.9);
+            padding: 40px;
+            width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 32px; font-weight: bold; color: white;
+            letter-spacing: 2px; margin-bottom: 20px;
+            text-transform: uppercase; border-left: 5px solid #e74c3c;
+            padding-left: 10px; display: inline-block;
+        }
+
+        /* Tabs chuyển đổi */
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #333; }
+        .tab {
+            flex: 1; padding: 10px; cursor: pointer; color: #888; font-weight: bold;
+            transition: 0.3s; text-transform: uppercase;
+        }
+        .tab.active { color: #e74c3c; border-bottom: 2px solid #e74c3c; }
+
+        /* Form */
+        .form-box { display: none; }
+        .form-box.active { display: block; animation: fadeIn 0.5s; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 0.9em; margin-bottom: 5px; color: #ccc; }
+        .input-group input {
+            width: 100%; padding: 10px; background: #222; border: 1px solid #444;
+            color: white; border-radius: 5px; box-sizing: border-box;
+        }
+        .input-group input:focus { outline: none; border-color: #e74c3c; }
+
+        .btn {
+            width: 100%; padding: 12px; background: #e74c3c; color: white;
+            border: none; border-radius: 5px; font-weight: bold; cursor: pointer;
+            margin-top: 10px; font-size: 1.1em; transition: 0.3s;
+        }
+        .btn:hover { background: #c0392b; transform: translateY(-2px); }
+        .btn:disabled { background: #555; cursor: not-allowed; transform: none; }
+
+        .error-msg { color: #e74c3c; font-size: 0.9em; margin-top: 10px; min-height: 20px; }
+        
+        .back-home { margin-top: 20px; display: block; color: #888; text-decoration: none; font-size: 0.9em; }
+        .back-home:hover { color: white; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
 </head>
 <body>
 
-<div class="auth-wrapper">
-    <div class="auth-box">
-        <h2 id="title">Đăng nhập</h2>
+    <div class="login-container">
+        <div class="logo">FAIR GAME</div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Đăng nhập</div>
+            <div class="tab" onclick="switchTab('register')">Đăng ký</div>
+        </div>
 
-        <p id="authMessage"></p>
+        <div id="loginForm" class="form-box active">
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="Nhập email...">
+            </div>
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="loginPass" placeholder="Nhập mật khẩu...">
+            </div>
+            <button class="btn" onclick="handleLogin()" id="btnLogin">ĐĂNG NHẬP</button>
+            <div id="loginError" class="error-msg"></div>
+        </div>
 
-        <input type="email" id="email" placeholder="Email của bạn...">
-        <input type="password" id="password" placeholder="Mật khẩu...">
+        <div id="registerForm" class="form-box">
+            <div class="input-group">
+                <label>Username (Tên hiển thị)</label>
+                <input type="text" id="regUsername" placeholder="VD: MatYeuDau">
+            </div>
+            <div class="input-group">
+                <label>Số điện thoại</label>
+                <input type="text" id="regPhone" placeholder="VD: 0909...">
+            </div>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="Nhập email...">
+            </div>
+            <div class="input-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="regPass" placeholder="Tối thiểu 6 ký tự">
+            </div>
+            <div class="input-group">
+                <label>Xác nhận mật khẩu</label>
+                <input type="password" id="regConfirmPass" placeholder="Nhập lại mật khẩu">
+            </div>
+            <button class="btn" onclick="handleRegister()" id="btnRegister">ĐĂNG KÝ TÀI KHOẢN</button>
+            <div id="regError" class="error-msg"></div>
+        </div>
 
-        <button id="submitBtn">
-            <i class="fas fa-sign-in-alt"></i> Đăng nhập
-        </button>
-
-        <p class="switch">
-            <span id="switchText">Chưa có tài khoản?</span>
-            <span id="switchBtn">Đăng ký ngay</span>
-        </p>
-
-        <a href="index.html" class="home-link">
-            <i class="fas fa-arrow-left"></i> Quay lại Trang chủ
-        </a>
+        <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Về trang chủ</a>
     </div>
-</div>
 
-<script type="module" src="auth.js"></script>
+    <script type="module">
+        import { auth, db } from "./firebase.js";
+        import { 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            sendEmailVerification, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-<script>
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            document.getElementById('submitBtn').click();
-        }
-    });
-</script>
+        // Chuyển Tab
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-box').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+            // Reset lỗi
+            document.getElementById('loginError').innerText = "";
+            document.getElementById('regError').innerText = "";
+        };
 
+        // --- XỬ LÝ ĐĂNG KÝ ---
+        window.handleRegister = function() {
+            const username = document.getElementById('regUsername').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const confirmPass = document.getElementById('regConfirmPass').value;
+            const btn = document.getElementById('btnRegister');
+            const errBox = document.getElementById('regError');
+
+            // Validate
+            if (!username || !phone || !email || !pass) { errBox.innerText = "Vui lòng điền đầy đủ thông tin!"; return; }
+            if (pass !== confirmPass) { errBox.innerText = "Mật khẩu xác nhận không khớp!"; return; }
+            if (pass.length < 6) { errBox.innerText = "Mật khẩu phải từ 6 ký tự trở lên!"; return; }
+
+            btn.disabled = true;
+            btn.innerText = "Đang xử lý...";
+            errBox.innerText = "";
+
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    
+                    // 1. Gửi email xác thực
+                    sendEmailVerification(user)
+                        .then(() => {
+                            console.log("Email verification sent!");
+                        });
+
+                    // 2. Lưu thông tin bổ sung vào Database (Username, Phone)
+                    set(ref(db, 'users/' + user.uid), {
+                        username: username,
+                        displayName: username, // Dùng luôn username làm tên hiển thị
+                        email: email,
+                        phone: phone,
+                        joinDate: new Date().toLocaleDateString('vi-VN'),
+                        role: 'member'
+                    }).then(() => {
+                        alert(`Đăng ký thành công!\nMột email xác thực đã được gửi tới ${email}.\nVui lòng kiểm tra hộp thư (kể cả mục Spam) để kích hoạt tài khoản.`);
+                        // Chuyển về tab đăng nhập
+                        switchTab('login');
+                    }).catch((error) => {
+                        console.error("Database Error:", error);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Auth Error:", error);
+                    if (error.code === 'auth/email-already-in-use') errBox.innerText = "Email này đã được sử dụng!";
+                    else if (error.code === 'auth/invalid-email') errBox.innerText = "Email không hợp lệ!";
+                    else errBox.innerText = "Lỗi: " + error.message;
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerText = "ĐĂNG KÝ TÀI KHOẢN";
+                });
+        };
+
+        // --- XỬ LÝ ĐĂNG NHẬP ---
+        window.handleLogin = function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const btn = document.getElementById('btnLogin');
+            const errBox = document.getElementById('loginError');
+
+            if (!email || !pass) { errBox.innerText = "Vui lòng nhập Email và Mật khẩu!"; return; }
+
+            btn.disabled = true;
+            btn.innerText = "Đang kiểm tra...";
+            errBox.innerText = "";
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+
+                    // Kiểm tra đã xác thực email chưa?
+                    if (!user.emailVerified) {
+                        alert("Tài khoản chưa được kích hoạt!\nVui lòng kiểm tra email để xác thực trước khi đăng nhập.");
+                        signOut(auth); // Đăng xuất ngay lập tức
+                        btn.disabled = false;
+                        btn.innerText = "ĐĂNG NHẬP";
+                        return;
+                    }
+
+                    // Nếu đã xác thực -> Chuyển về trang chủ
+                    window.location.href = "index.html";
+                })
+                .catch((error) => {
+                    console.error(error);
+                    if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') errBox.innerText = "Sai email hoặc mật khẩu!";
+                    else if (error.code === 'auth/user-not-found') errBox.innerText = "Tài khoản không tồn tại!";
+                    else errBox.innerText = "Lỗi đăng nhập: " + error.message;
+                    
+                    btn.disabled = false;
+                    btn.innerText = "ĐĂNG NHẬP";
+                });
+        };
+
+    </script>
 </body>
 </html>

@@ -293,57 +293,92 @@ window.sortGames = function() {
 };
 
 // ============================================================
-// 8. THANH TOÁN (PAYMENT)
+// 8. THANH TOÁN (PAYMENT) - ẨN QR & BANK INFO KHI 0Đ
 // ============================================================
 const MY_BANK = { BANK_ID: 'MB', ACCOUNT_NO: '0357876625', ACCOUNT_NAME: 'DO QUANG THANG', TEMPLATE: 'compact2' };
 
 window.openCheckout = function() {
     if (cart.length === 0) { alert("Giỏ hàng đang trống!"); return; }
     if (!currentUser) { alert("Vui lòng đăng nhập!"); window.location.href = "login.html"; return; }
+
     const modal = document.getElementById('paymentModal');
     const qrImg = document.getElementById('qrImage');
     const payAmount = document.getElementById('payAmount');
     const transferContent = document.getElementById('transferContent');
+    const qrSection = document.querySelector('.qr-section');
+    const confirmBtn = document.querySelector('.confirm-pay-btn');
+    
+    // Tìm khối thông tin ngân hàng (hỗ trợ cả class bên index.html và profile.html)
+    const bankInfo = document.querySelector('.bank-card') || document.querySelector('.bank-info');
+
+    // Tính tổng tiền
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     const orderId = 'FAIR' + Math.floor(Math.random() * 10000);
     
     payAmount.innerText = `$${total.toFixed(2)} (Khoảng ${(total * 24000).toLocaleString()} VND)`;
     transferContent.innerText = orderId;
-    const vndAmount = total * 24000;
-    const qrSource = `https://img.vietqr.io/image/${MY_BANK.BANK_ID}-${MY_BANK.ACCOUNT_NO}-${MY_BANK.TEMPLATE}.png?amount=${vndAmount}&addInfo=${orderId}&accountName=${encodeURIComponent(MY_BANK.ACCOUNT_NAME)}`;
+
+    // --- LOGIC KIỂM TRA 0 ĐỒNG ---
+    if (total === 0) {
+        // Trường hợp FREE: Ẩn QR và Thông tin ngân hàng
+        if (qrSection) qrSection.style.display = 'none';
+        if (bankInfo) bankInfo.style.display = 'none'; // <-- ẨN THÔNG TIN NGÂN HÀNG
+        
+        confirmBtn.innerHTML = '<i class="fas fa-gift"></i> NHẬN GAME MIỄN PHÍ';
+    } else {
+        // Trường hợp CÓ PHÍ: Hiện lại tất cả
+        if (qrSection) qrSection.style.display = 'block'; // hoặc 'flex' tùy CSS gốc
+        if (bankInfo) bankInfo.style.display = 'block';   // <-- HIỆN LẠI
+        
+        confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN';
+        
+        const vndAmount = total * 24000;
+        const qrSource = `https://img.vietqr.io/image/${MY_BANK.BANK_ID}-${MY_BANK.ACCOUNT_NO}-${MY_BANK.TEMPLATE}.png?amount=${vndAmount}&addInfo=${orderId}&accountName=${encodeURIComponent(MY_BANK.ACCOUNT_NAME)}`;
+        qrImg.src = qrSource;
+    }
     
-    qrImg.src = qrSource;
     modal.style.display = "flex"; 
     window.toggleCart(); 
 };
 
+// ... Các hàm closePaymentModal và confirmPayment giữ nguyên như cũ ...
 window.closePaymentModal = function() { document.getElementById('paymentModal').style.display = "none"; };
 
 window.confirmPayment = function() {
     const btn = document.querySelector('.confirm-pay-btn');
     const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG KIỂM TRA...';
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG XỬ LÝ...';
     btn.style.opacity = "0.7"; btn.disabled = true;
     
     setTimeout(() => {
         const itemsWithLinks = cart.map(item => { return { ...item, downloadLink: GAME_DATABASE[item.name] || "#" }; });
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+
         const orderData = {
             items: itemsWithLinks,
-            total: cart.reduce((sum, item) => sum + item.price, 0),
+            total: total,
             date: new Date().toLocaleString('vi-VN'),
-            paymentMethod: 'QR Transfer',
+            paymentMethod: total === 0 ? 'Free Gift' : 'QR Transfer',
             status: 'Completed'
         };
+
         push(ref(db, `orders/${currentUser.uid}`), orderData)
         .then(() => {
+<<<<<<< HEAD
             alert("Thanh toán thành công! Cảm ơn bạn đã ủng hộ.");
+=======
+            if (total === 0) alert("Nhận game thành công! Hãy kiểm tra thư viện.");
+            else alert("Thanh toán thành công!");
+            
+>>>>>>> 33297ad030bf47c4efeafddb7f346d8452aa5089
             cart = []; saveData(); window.renderCart(); window.closePaymentModal();
             const isInGameFolder = window.location.pathname.includes("/games/");
             window.location.href = isInGameFolder ? "../profile.html" : "profile.html";
         })
         .catch((err) => { console.error(err); alert("Lỗi kết nối!"); })
         .finally(() => { btn.innerHTML = originalText; btn.style.opacity = "1"; btn.disabled = false; });
-    }, 2000);
+    }, 1500);
 };
 
 // ============================================================

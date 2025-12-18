@@ -723,3 +723,115 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
 .content-section.hidden {
     display: none;
 }
+
+/* --- NÂNG CẤP MODAL THANH TOÁN (CYBERPUNK STYLE) --- */
+
+/* 1. Tùy chỉnh lại màu chữ và căn chỉnh */
+.payment-box {
+    text-align: center; /* Căn giữa toàn bộ nội dung */
+    background: linear-gradient(145deg, #121212, #1a0505); /* Nền tối ánh đỏ nhẹ */
+    border: 1px solid #e74c3c;
+    box-shadow: 0 0 40px rgba(231, 76, 60, 0.2);
+}
+
+.payment-header h2 {
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 4px;
+    text-shadow: 0 0 15px #e74c3c;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 20px;
+}
+
+/* 2. Phần hiển thị tiền */
+#payAmount {
+    font-size: 2.5em; /* To hơn nữa */
+    color: #e74c3c;
+    text-shadow: 0 0 10px rgba(231, 76, 60, 0.6);
+    margin: 10px 0 20px 0;
+}
+
+/* 3. Nút bấm (Button) - Làm cho nó "ngầu" hơn */
+.confirm-pay-btn {
+    background: transparent;
+    border: 2px solid #27ae60; /* Viền xanh lá neon */
+    color: #27ae60;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.3em;
+    padding: 15px 30px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    width: 100%;
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hiệu ứng khi rê chuột vào nút */
+.confirm-pay-btn:hover {
+    background: #27ae60;
+    color: #000; /* Chữ đen trên nền xanh */
+    box-shadow: 0 0 30px #27ae60; /* Phát sáng xanh neon */
+    transform: scale(1.02); /* Phóng to nhẹ */
+}
+
+/* Icon trong nút */
+.confirm-pay-btn i {
+    margin-right: 10px;
+}
+
+/* 4. Icon quà tặng cho trường hợp 0đ */
+.free-gift-icon {
+    font-size: 80px;
+    color: #f1c40f; /* Vàng kim loại */
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+    text-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-20px);}
+    60% {transform: translateY(-10px);}
+}
+
+
+/* Style thu gọn cho modal 0đ */
+.payment-box.compact {
+    max-width: 450px !important; /* Thu hẹp chiều ngang */
+    padding: 30px !important;
+    min-height: auto !important;
+}
+.payment-box.compact .payment-header h2 {
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+
+/* --- FIX LỖI MODAL BỊ QUÁ TO --- */
+
+.payment-box {
+    width: 95%; /* Trên điện thoại thì lấy 95% màn hình */
+    max-width: 850px !important; /* QUAN TRỌNG: Giới hạn chiều rộng tối đa chỉ 850px */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    transition: max-width 0.3s ease; /* Hiệu ứng co giãn mượt mà */
+}
+
+/* Khi ở chế độ gọn (0đ) */
+.payment-box.compact {
+    max-width: 450px !important;
+}
+
+/* Responsive: Trên điện thoại thì xếp dọc */
+@media (max-width: 768px) {
+    .payment-container {
+        flex-direction: column;
+    }
+    .payment-box {
+        max-width: 100% !important; /* Mobile thì cho full */
+    }
+}

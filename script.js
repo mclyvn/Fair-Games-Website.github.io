@@ -11,14 +11,16 @@ import { ref, set, get, child, push, onValue } from "https://www.gstatic.com/fir
 let cart = []; 
 let wishlist = []; 
 let currentUser = null; 
+let currentFilterTag = 'all'; 
 
-// Danh sách Link tải game
+// Danh sách Link tải game (ĐÃ FIX TÊN GAME ĐỂ KHÔNG BỊ LỖI "SẮP RA MẮT")
 const GAME_DATABASE = {
     "Ace Slayer": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "Bunny Adventure": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "PUBG Mobile": "https://www.pubgmobile.com/en-US/home.shtml",
     "Elden Ring": "https://store.steampowered.com/app/1245620/Elden_Ring/",
-    "FreeFire": "https://ff.garena.com/vn/",
+    "FreeFire": "https://ff.garena.com/vn/",   // Tên viết liền
+    "Free Fire": "https://ff.garena.com/vn/",  // Tên có dấu cách (Fix lỗi hiển thị)
     "Earth 2130": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "UFO Attack": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "Apple Collector": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
@@ -28,6 +30,7 @@ const GAME_DATABASE = {
     "Minecraft": "https://www.minecraft.net/en-us/download"
 };
 
+// Load giỏ hàng tạm thời
 function loadGuestCartFromLocalStorage() {
     try {
         const raw = localStorage.getItem('guestCart');
@@ -37,7 +40,7 @@ function loadGuestCartFromLocalStorage() {
 loadGuestCartFromLocalStorage();
 
 // ============================================================
-// 3. XỬ LÝ ĐĂNG NHẬP / ĐĂNG XUẤT (AUTH)
+// 3. XỬ LÝ AUTH
 // ============================================================
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -71,7 +74,7 @@ function updateUserBox(email) {
 window.logout = function() { signOut(auth).then(() => location.reload()).catch(console.error); };
 
 // ============================================================
-// 4. DỮ LIỆU & ĐỒNG BỘ (CART + WISHLIST)
+// 4. DỮ LIỆU & ĐỒNG BỘ
 // ============================================================
 function loadCartFromFirebase(userId) {
     const dbRef = ref(db);
@@ -98,7 +101,7 @@ function saveData() {
 }
 
 // ============================================================
-// 5. CHỨC NĂNG YÊU THÍCH (WISHLIST)
+// 5. CHỨC NĂNG YÊU THÍCH
 // ============================================================
 window.toggleWishlist = function(gameName) {
     if (!currentUser) {
@@ -130,7 +133,7 @@ function updateWishlistUI() {
 }
 
 // ============================================================
-// 6. GIỎ HÀNG & UI
+// 6. GIỎ HÀNG & UI (FIX LỖI ẢNH)
 // ============================================================
 window.renderCart = function() {
     const container = document.getElementById('cartItems');
@@ -149,12 +152,22 @@ window.renderCart = function() {
     cart.forEach((item, index) => {
         total += item.price;
         let priceText = item.price === 0 ? "Free" : `$${item.price}`;
-        let displayImg = item.image;
-        if (window.location.pathname.includes("/games/")) { displayImg = "../" + item.image; }
+        
+        let cleanPath = item.image;
+        if (cleanPath.includes("images/")) {
+            cleanPath = cleanPath.substring(cleanPath.lastIndexOf("images/"));
+        }
+
+        let currentPath = window.location.pathname.toLowerCase();
+        let displayImg = cleanPath; 
+        
+        if (currentPath.includes("/games/") || currentPath.includes("/games-")) { 
+            displayImg = "../" + cleanPath; 
+        }
 
         container.innerHTML += `
             <div class="cart-item">
-                <img src="${displayImg}" alt="${item.name}">
+                <img src="${displayImg}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/70?text=No+Img'">
                 <div><h4>${item.name}</h4><p>${priceText}</p></div>
                 <span class="remove-item" onclick="removeFromCart(${index})">Xóa</span>
             </div>`;
@@ -170,7 +183,12 @@ window.addToCart = function(name, price, imageSrc) {
     const existingItem = cart.find(item => item.name === name);
     if (existingItem) { showToast(`"${name}" đã có trong giỏ hàng rồi!`, true); return; }
 
-    cart.push({ name, price, image: imageSrc });
+    let cleanImage = imageSrc;
+    if (cleanImage.includes("images/")) {
+        cleanImage = cleanImage.substring(cleanImage.lastIndexOf("images/"));
+    }
+
+    cart.push({ name, price, image: cleanImage });
     saveData();
     window.renderCart(); 
     
@@ -198,7 +216,7 @@ window.addToCart = function(name, price, imageSrc) {
         showToast(`Đã thêm "${name}" thành công!`);
         if(cartIcon) { cartIcon.classList.add('cart-shake'); setTimeout(() => cartIcon.classList.remove('cart-shake'), 400); }
     }
-};
+};  
 
 function showToast(message, isWarning = false) {
     const toast = document.getElementById("toast");
@@ -214,77 +232,45 @@ window.removeFromCart = function(index) { cart.splice(index, 1); saveData(); win
 window.toggleCart = function() { document.getElementById('cartSidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); };
 
 // ============================================================
-// 7. BỘ LỌC VÀ TÌM KIẾM KẾT HỢP (FILTER & SEARCH LOGIC)
+// 7. BỘ LỌC + TÌM KIẾM + SẮP XẾP
 // ============================================================
-
-// Biến lưu trạng thái filter hiện tại (Mặc định là 'all')
-let currentFilterTag = 'all';
-
-// Hàm xử lý chính: Kiểm tra cả 2 điều kiện cùng lúc
 function applyGameFilters() {
-    // 1. Lấy từ khóa tìm kiếm hiện tại
     let searchInput = document.getElementById('searchInput');
     let keyword = searchInput ? searchInput.value.toLowerCase() : "";
-    
-    // 2. Lấy danh sách thẻ game
     let cards = document.getElementsByClassName('product-card');
 
     for (let i = 0; i < cards.length; i++) {
         let card = cards[i];
-        
-        // Lấy thông tin của game
         let title = card.getElementsByTagName('h3')[0].innerText.toLowerCase();
-        let tags = card.getAttribute('data-tags'); // Ví dụ: "action rpg"
+        let tags = card.getAttribute('data-tags'); 
 
-        // --- ĐIỀU KIỆN 1: TÌM KIẾM ---
         let matchSearch = title.includes(keyword);
+        let matchTag = (currentFilterTag === 'all') ? true : (tags && tags.includes(currentFilterTag));
 
-        // --- ĐIỀU KIỆN 2: FILTER TAG ---
-        let matchTag = false;
-        if (currentFilterTag === 'all') {
-            matchTag = true; // Nếu chọn tất cả thì luôn đúng
-        } else if (tags && tags.includes(currentFilterTag)) {
-            matchTag = true; // Nếu tag của game có chứa tag đang chọn
-        }
-
-        // --- KẾT HỢP: Cả 2 phải cùng đúng mới hiện ---
         if (matchSearch && matchTag) {
-            card.style.display = ""; // Hiện
-            card.classList.add('reveal', 'active'); // Kích hoạt lại hiệu ứng hiện
+            card.style.display = ""; 
+            card.classList.add('reveal');
         } else {
-            card.style.display = "none"; // Ẩn
+            card.style.display = "none"; 
         }
     }
-    
-    // Gọi lại sự kiện scroll để kích hoạt animation nếu cần
     window.dispatchEvent(new Event('scroll'));
 }
 
-// Hàm 1: Khi bấm nút Filter
 window.filterByTag = function(tag) {
-    // Cập nhật biến toàn cục
-    currentFilterTag = tag;
-    
-    // Cập nhật giao diện nút bấm (Active Class)
+    currentFilterTag = tag; 
     let buttons = document.querySelectorAll('.tag-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     if(event && event.target) event.target.classList.add('active');
-    
-    // Gọi hàm xử lý chung
-    applyGameFilters();
+    applyGameFilters(); 
 };
 
-// Hàm 2: Khi gõ phím Tìm kiếm
-window.searchGame = function() {
-    // Chỉ cần gọi hàm xử lý chung (nó sẽ tự lấy value từ input)
-    applyGameFilters();
-};
+window.searchGame = function() { applyGameFilters(); };
 
-// Hàm 3: Sắp xếp (Sort) - Giữ nguyên logic cũ nhưng áp dụng trên các item đang hiển thị
 window.sortGames = function() {
-    let sortValue = document.getElementById('sortSelect').value; // Đảm bảo HTML có id="sortSelect" nếu dùng
+    let sortValue = document.getElementById('sortSelect').value;
     let container = document.getElementById('gameGrid');
-    if (!container) return; // Kiểm tra an toàn
+    if (!container) return;
 
     let cards = Array.from(container.getElementsByClassName('product-card'));
 
@@ -304,16 +290,13 @@ window.sortGames = function() {
         else return 0;
     });
 
-    // Sắp xếp lại DOM
     container.innerHTML = "";
     cards.forEach(card => container.appendChild(card));
-    
-    // Sau khi sort xong, vẫn phải đảm bảo filter/search đúng
-    applyGameFilters();
+    applyGameFilters(); 
 };
 
 // ============================================================
-// 8. THANH TOÁN (PAYMENT) - ẨN QR & BANK INFO KHI 0Đ
+// 8. THANH TOÁN (PAYMENT) - ĐÃ CÓ LOGIC CHỈNH SIZE
 // ============================================================
 const MY_BANK = { BANK_ID: 'MB', ACCOUNT_NO: '0357876625', ACCOUNT_NAME: 'DO QUANG THANG', TEMPLATE: 'compact2' };
 
@@ -322,34 +305,50 @@ window.openCheckout = function() {
     if (!currentUser) { alert("Vui lòng đăng nhập!"); window.location.href = "login.html"; return; }
 
     const modal = document.getElementById('paymentModal');
+    // 👇 Lấy khối nội dung để chỉnh class to/nhỏ
+    const modalContent = document.querySelector('.payment-box'); 
+    
     const qrImg = document.getElementById('qrImage');
     const payAmount = document.getElementById('payAmount');
     const transferContent = document.getElementById('transferContent');
     const qrSection = document.querySelector('.qr-section');
     const confirmBtn = document.querySelector('.confirm-pay-btn');
-    
-    // Tìm khối thông tin ngân hàng (hỗ trợ cả class bên index.html và profile.html)
     const bankInfo = document.querySelector('.bank-card') || document.querySelector('.bank-info');
 
-    // Tính tổng tiền
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     const orderId = 'FAIR' + Math.floor(Math.random() * 10000);
     
     payAmount.innerText = `$${total.toFixed(2)} (Khoảng ${(total * 24000).toLocaleString()} VND)`;
     transferContent.innerText = orderId;
 
-    // --- LOGIC KIỂM TRA 0 ĐỒNG ---
     if (total === 0) {
-        // Trường hợp FREE: Ẩn QR và Thông tin ngân hàng
+        // --- CHẾ ĐỘ 0Đ: THU NHỎ ---
         if (qrSection) qrSection.style.display = 'none';
-        if (bankInfo) bankInfo.style.display = 'none'; // <-- ẨN THÔNG TIN NGÂN HÀNG
+        if (bankInfo) bankInfo.style.display = 'none'; 
         
-        confirmBtn.innerHTML = '<i class="fas fa-gift"></i> NHẬN GAME MIỄN PHÍ';
+        // 👇 THÊM CLASS 'compact' để thu nhỏ
+        if (modalContent) modalContent.classList.add('compact');
+
+        let giftHtml = '<div class="free-gift-icon"><i class="fas fa-gift"></i></div>';
+        const infoSection = document.querySelector('.info-section');
+        if (!infoSection.querySelector('.free-gift-icon')) {
+            infoSection.insertAdjacentHTML('afterbegin', giftHtml);
+        } else {
+            infoSection.querySelector('.free-gift-icon').style.display = 'block';
+        }
+
+        confirmBtn.innerHTML = '<i class="fas fa-arrow-right"></i> NHẬN GAME NGAY';
     } else {
-        // Trường hợp CÓ PHÍ: Hiện lại tất cả
-        if (qrSection) qrSection.style.display = 'block'; // hoặc 'flex' tùy CSS gốc
-        if (bankInfo) bankInfo.style.display = 'block';   // <-- HIỆN LẠI
+        // --- CHẾ ĐỘ CÓ TIỀN: KÍCH THƯỚC CHUẨN ---
+        if (qrSection) qrSection.style.display = 'block'; 
+        if (bankInfo) bankInfo.style.display = 'block';   
         
+        // 👇 XÓA CLASS 'compact' để trở về kích thước to
+        if (modalContent) modalContent.classList.remove('compact');
+
+        const giftIcon = document.querySelector('.free-gift-icon');
+        if (giftIcon) giftIcon.style.display = 'none';
+
         confirmBtn.innerHTML = '<i class="fas fa-check-circle"></i> TÔI ĐÃ CHUYỂN KHOẢN';
         
         const vndAmount = total * 24000;
@@ -361,7 +360,6 @@ window.openCheckout = function() {
     window.toggleCart(); 
 };
 
-// ... Các hàm closePaymentModal và confirmPayment giữ nguyên như cũ ...
 window.closePaymentModal = function() { document.getElementById('paymentModal').style.display = "none"; };
 
 window.confirmPayment = function() {
@@ -372,6 +370,7 @@ window.confirmPayment = function() {
     btn.style.opacity = "0.7"; btn.disabled = true;
     
     setTimeout(() => {
+        // Lấy thông tin link từ GAME_DATABASE đã sửa
         const itemsWithLinks = cart.map(item => { return { ...item, downloadLink: GAME_DATABASE[item.name] || "#" }; });
         const total = cart.reduce((sum, item) => sum + item.price, 0);
 
@@ -385,9 +384,7 @@ window.confirmPayment = function() {
 
         push(ref(db, `orders/${currentUser.uid}`), orderData)
         .then(() => {
-            if (total === 0) alert("Nhận game thành công! Hãy kiểm tra thư viện.");
-            else alert("Thanh toán thành công!");
-            
+            alert("Thanh toán thành công! Cảm ơn bạn đã ủng hộ.");
             cart = []; saveData(); window.renderCart(); window.closePaymentModal();
             const isInGameFolder = window.location.pathname.includes("/games/");
             window.location.href = isInGameFolder ? "../profile.html" : "profile.html";
@@ -421,8 +418,19 @@ if (logo) {
     }); 
 }
 
+window.toggleSection = function(sectionId, headerElement) {
+    const section = document.getElementById(sectionId);
+    if (section.classList.contains('hidden')) {
+        section.classList.remove('hidden'); 
+        headerElement.classList.remove('collapsed');
+    } else {
+        section.classList.add('hidden'); 
+        headerElement.classList.add('collapsed');
+    }
+};
+
 // ============================================================
-// 10. CHAT MENU & TAWK.TO (ĐÃ SỬA LỖI MODULE)
+// 10. CHAT MENU
 // ============================================================
 const PAGE_ID = "981930334992893"; 
 const TAWK_SRC = 'https://embed.tawk.to/69439d6ea93b66197f06d88c/1jco1tu20'; 
@@ -433,8 +441,7 @@ styleChat.innerHTML = `
     .chat-container.hidden { display: none !important; }
     .main-chat-btn { width: 60px; height: 60px; background: #e74c3c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 0 20px rgba(231, 76, 60, 0.6); transition: 0.3s; position: relative; }
     .main-chat-btn:hover { transform: scale(1.1); }
-    /* Đổi nền thành trắng, icon thành đỏ, và bỏ hiệu ứng xoay */
-.chat-container.active .main-chat-btn { background: #fff; color: #e74c3c; transform: none; box-shadow: 0 0 10px white; }
+    .chat-container.active .main-chat-btn { background: #fff; color: #e74c3c; transform: none; box-shadow: 0 0 10px white; }
     .sub-chat-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; text-decoration: none; opacity: 0; transform: translateY(20px) scale(0); pointer-events: none; transition: 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .chat-container.active .sub-chat-btn { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
     .btn-mess { background: #0084FF; transition-delay: 0.1s; } 
@@ -454,11 +461,9 @@ const chatHTML = `
     </div>`;
 document.body.insertAdjacentHTML('beforeend', chatHTML);
 
-// Các hàm toàn cục cho Chat
 window.toggleChatMenu = function() { document.getElementById('chatMenu').classList.toggle('active'); };
 window.openTawk = function() { if (window.Tawk_API) { window.Tawk_API.showWidget(); window.Tawk_API.maximize(); document.getElementById('chatMenu').classList.add('hidden'); } };
 
-// Cấu hình Tawk.to dùng biến window
 window.Tawk_API = window.Tawk_API || {};
 window.Tawk_LoadStart = new Date();
 window.Tawk_API.onLoad = function(){ window.Tawk_API.hideWidget(); };
@@ -473,16 +478,3 @@ window.Tawk_API.onChatHidden = function(){ document.getElementById('chatMenu').c
 })();
 
 setInterval(() => { if (window.Tawk_API && !window.Tawk_API.isChatMaximized()) { const menu = document.getElementById('chatMenu'); if (menu && menu.classList.contains('hidden')) { window.Tawk_API.hideWidget(); menu.classList.remove('hidden'); } } }, 1000);
-
-// Hàm bật tắt hiển thị (Collapse)
-window.toggleSection = function(sectionId, headerElement) {
-    const section = document.getElementById(sectionId);
-    
-    if (section.classList.contains('hidden')) {
-        section.classList.remove('hidden'); // Hiện nội dung
-        headerElement.classList.remove('collapsed'); // Xoay mũi tên xuống
-    } else {
-        section.classList.add('hidden'); // Ẩn nội dung
-        headerElement.classList.add('collapsed'); // Xoay mũi tên ngang
-    }
-};

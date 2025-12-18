@@ -11,6 +11,7 @@ import { ref, set, get, child, push, onValue } from "https://www.gstatic.com/fir
 let cart = []; 
 let wishlist = []; 
 let currentUser = null; 
+let currentFilterTag = 'all'; // Biến lưu tag đang chọn
 
 // Danh sách Link tải game
 const GAME_DATABASE = {
@@ -28,6 +29,7 @@ const GAME_DATABASE = {
     "Minecraft": "https://www.minecraft.net/en-us/download"
 };
 
+// Load giỏ hàng tạm thời
 function loadGuestCartFromLocalStorage() {
     try {
         const raw = localStorage.getItem('guestCart');
@@ -37,7 +39,7 @@ function loadGuestCartFromLocalStorage() {
 loadGuestCartFromLocalStorage();
 
 // ============================================================
-// 3. XỬ LÝ ĐĂNG NHẬP / ĐĂNG XUẤT (AUTH)
+// 3. XỬ LÝ AUTH (ĐĂNG NHẬP/ĐĂNG XUẤT)
 // ============================================================
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -98,7 +100,7 @@ function saveData() {
 }
 
 // ============================================================
-// 5. CHỨC NĂNG YÊU THÍCH (WISHLIST)
+// 5. CHỨC NĂNG YÊU THÍCH
 // ============================================================
 window.toggleWishlist = function(gameName) {
     if (!currentUser) {
@@ -174,6 +176,7 @@ window.addToCart = function(name, price, imageSrc) {
     saveData();
     window.renderCart(); 
     
+    // Hiệu ứng bay
     const productImg = document.querySelector('.detail-img') || document.querySelector(`img[alt="${name}"]`);
     const cartIcon = document.querySelector('.cart-icon');
     
@@ -214,77 +217,57 @@ window.removeFromCart = function(index) { cart.splice(index, 1); saveData(); win
 window.toggleCart = function() { document.getElementById('cartSidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); };
 
 // ============================================================
-// 7. BỘ LỌC VÀ TÌM KIẾM KẾT HỢP (FILTER & SEARCH LOGIC)
+// 7. BỘ LỌC + TÌM KIẾM + SẮP XẾP (ĐÃ GỘP CHUẨN)
 // ============================================================
 
-// Biến lưu trạng thái filter hiện tại (Mặc định là 'all')
-let currentFilterTag = 'all';
-
-// Hàm xử lý chính: Kiểm tra cả 2 điều kiện cùng lúc
+// Hàm xử lý chung: Kiểm tra cả Từ khóa và Tag
 function applyGameFilters() {
-    // 1. Lấy từ khóa tìm kiếm hiện tại
     let searchInput = document.getElementById('searchInput');
     let keyword = searchInput ? searchInput.value.toLowerCase() : "";
-    
-    // 2. Lấy danh sách thẻ game
     let cards = document.getElementsByClassName('product-card');
 
     for (let i = 0; i < cards.length; i++) {
         let card = cards[i];
-        
-        // Lấy thông tin của game
         let title = card.getElementsByTagName('h3')[0].innerText.toLowerCase();
-        let tags = card.getAttribute('data-tags'); // Ví dụ: "action rpg"
+        let tags = card.getAttribute('data-tags'); 
 
-        // --- ĐIỀU KIỆN 1: TÌM KIẾM ---
         let matchSearch = title.includes(keyword);
+        let matchTag = (currentFilterTag === 'all') ? true : (tags && tags.includes(currentFilterTag));
 
-        // --- ĐIỀU KIỆN 2: FILTER TAG ---
-        let matchTag = false;
-        if (currentFilterTag === 'all') {
-            matchTag = true; // Nếu chọn tất cả thì luôn đúng
-        } else if (tags && tags.includes(currentFilterTag)) {
-            matchTag = true; // Nếu tag của game có chứa tag đang chọn
-        }
-
-        // --- KẾT HỢP: Cả 2 phải cùng đúng mới hiện ---
+        // Cả 2 điều kiện đúng thì hiện
         if (matchSearch && matchTag) {
-            card.style.display = ""; // Hiện
-            card.classList.add('reveal', 'active'); // Kích hoạt lại hiệu ứng hiện
+            card.style.display = ""; 
+            card.classList.add('reveal'); // Kích hoạt animation hiện
         } else {
-            card.style.display = "none"; // Ẩn
+            card.style.display = "none"; 
         }
     }
-    
-    // Gọi lại sự kiện scroll để kích hoạt animation nếu cần
+    // Gọi lại scroll để animation hoạt động
     window.dispatchEvent(new Event('scroll'));
 }
 
-// Hàm 1: Khi bấm nút Filter
+// Khi bấm nút Tag
 window.filterByTag = function(tag) {
-    // Cập nhật biến toàn cục
-    currentFilterTag = tag;
+    currentFilterTag = tag; // Lưu tag
     
-    // Cập nhật giao diện nút bấm (Active Class)
+    // Đổi màu nút
     let buttons = document.querySelectorAll('.tag-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     if(event && event.target) event.target.classList.add('active');
     
-    // Gọi hàm xử lý chung
-    applyGameFilters();
+    applyGameFilters(); // Lọc
 };
 
-// Hàm 2: Khi gõ phím Tìm kiếm
+// Khi tìm kiếm
 window.searchGame = function() {
-    // Chỉ cần gọi hàm xử lý chung (nó sẽ tự lấy value từ input)
-    applyGameFilters();
+    applyGameFilters(); // Lọc
 };
 
-// Hàm 3: Sắp xếp (Sort) - Giữ nguyên logic cũ nhưng áp dụng trên các item đang hiển thị
+// Khi sắp xếp
 window.sortGames = function() {
-    let sortValue = document.getElementById('sortSelect').value; // Đảm bảo HTML có id="sortSelect" nếu dùng
+    let sortValue = document.getElementById('sortSelect').value;
     let container = document.getElementById('gameGrid');
-    if (!container) return; // Kiểm tra an toàn
+    if (!container) return;
 
     let cards = Array.from(container.getElementsByClassName('product-card'));
 
@@ -304,12 +287,9 @@ window.sortGames = function() {
         else return 0;
     });
 
-    // Sắp xếp lại DOM
     container.innerHTML = "";
     cards.forEach(card => container.appendChild(card));
-    
-    // Sau khi sort xong, vẫn phải đảm bảo filter/search đúng
-    applyGameFilters();
+    applyGameFilters(); // Sắp xếp xong thì lọc lại để đảm bảo đúng
 };
 
 // ============================================================
@@ -356,7 +336,7 @@ window.confirmPayment = function() {
         };
         push(ref(db, `orders/${currentUser.uid}`), orderData)
         .then(() => {
-            alert("Thanh toán thành công!");
+            alert("Thanh toán thành công! Cảm ơn bạn đã ủng hộ.");
             cart = []; saveData(); window.renderCart(); window.closePaymentModal();
             const isInGameFolder = window.location.pathname.includes("/games/");
             window.location.href = isInGameFolder ? "../profile.html" : "profile.html";
@@ -390,8 +370,20 @@ if (logo) {
     }); 
 }
 
+// Hàm Collapse cho About Us (nếu có dùng)
+window.toggleSection = function(sectionId, headerElement) {
+    const section = document.getElementById(sectionId);
+    if (section.classList.contains('hidden')) {
+        section.classList.remove('hidden'); 
+        headerElement.classList.remove('collapsed');
+    } else {
+        section.classList.add('hidden'); 
+        headerElement.classList.add('collapsed');
+    }
+};
+
 // ============================================================
-// 10. CHAT MENU & TAWK.TO (ĐÃ SỬA LỖI MODULE)
+// 10. CHAT MENU & TAWK.TO (ĐÃ SỬA LỖI & FIX TRÙNG LẶP)
 // ============================================================
 const PAGE_ID = "981930334992893"; 
 const TAWK_SRC = 'https://embed.tawk.to/69439d6ea93b66197f06d88c/1jco1tu20'; 
@@ -402,8 +394,7 @@ styleChat.innerHTML = `
     .chat-container.hidden { display: none !important; }
     .main-chat-btn { width: 60px; height: 60px; background: #e74c3c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 0 20px rgba(231, 76, 60, 0.6); transition: 0.3s; position: relative; }
     .main-chat-btn:hover { transform: scale(1.1); }
-    /* Đổi nền thành trắng, icon thành đỏ, và bỏ hiệu ứng xoay */
-.chat-container.active .main-chat-btn { background: #fff; color: #e74c3c; transform: none; box-shadow: 0 0 10px white; }
+    .chat-container.active .main-chat-btn { background: #fff; color: #e74c3c; transform: none; box-shadow: 0 0 10px white; }
     .sub-chat-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; text-decoration: none; opacity: 0; transform: translateY(20px) scale(0); pointer-events: none; transition: 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .chat-container.active .sub-chat-btn { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
     .btn-mess { background: #0084FF; transition-delay: 0.1s; } 
@@ -442,16 +433,3 @@ window.Tawk_API.onChatHidden = function(){ document.getElementById('chatMenu').c
 })();
 
 setInterval(() => { if (window.Tawk_API && !window.Tawk_API.isChatMaximized()) { const menu = document.getElementById('chatMenu'); if (menu && menu.classList.contains('hidden')) { window.Tawk_API.hideWidget(); menu.classList.remove('hidden'); } } }, 1000);
-
-// Hàm bật tắt hiển thị (Collapse)
-window.toggleSection = function(sectionId, headerElement) {
-    const section = document.getElementById(sectionId);
-    
-    if (section.classList.contains('hidden')) {
-        section.classList.remove('hidden'); // Hiện nội dung
-        headerElement.classList.remove('collapsed'); // Xoay mũi tên xuống
-    } else {
-        section.classList.add('hidden'); // Ẩn nội dung
-        headerElement.classList.add('collapsed'); // Xoay mũi tên ngang
-    }
-};

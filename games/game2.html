@@ -225,22 +225,21 @@
     <script type="module">
         import { auth, db } from "../firebase.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        // 👇 Thêm 'get' vào dòng import này để lấy dữ liệu avatar
+        import { ref, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-        // !!! QUAN TRỌNG: ID CỦA GAME NÀY
-        const GAME_ID = 'game1_reviews'; 
+        // !!! QUAN TRỌNG: ID CỦA GAME (Nhớ sửa dòng này khi copy sang game khác)
+        const GAME_ID = 'game2_reviews'; 
 
         let currentUser = null;
 
-        // 1. KIỂM TRA TRẠNG THÁI ĐĂNG NHẬP
+        // 1. KIỂM TRA ĐĂNG NHẬP
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('reviewForm').style.display = 'block';
                 document.getElementById('loginWarning').style.display = 'none';
-                // Ưu tiên hiện tên hiển thị, nếu không có thì hiện email
-                const displayName = user.displayName || user.email;
-                document.getElementById('currentUserLabel').innerText = displayName;
+                document.getElementById('currentUserLabel').innerText = user.displayName || user.email;
             } else {
                 currentUser = null;
                 document.getElementById('reviewForm').style.display = 'none';
@@ -248,131 +247,112 @@
             }
         });
 
-        // 2. XỬ LÝ CHỌN SAO (UPDATE: CÓ HIỆU ỨNG HOVER)
+        // 2. LOGIC NGÔI SAO (ĐÃ FIX & CÓ HOVER)
         const stars = document.querySelectorAll('.star-widget span');
         const widget = document.getElementById('starWidget');
         const ratingValueInput = document.getElementById('ratingValue');
         const ratingText = document.getElementById('ratingText');
         const ratingLabels = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Tuyệt vời"];
         
-        // Hàm tô màu sao
         function highlightStars(count) {
             stars.forEach((s, i) => {
-                if (i < count) {
-                    s.classList.add('selected');
-                    s.style.color = "#f1c40f";
-                } else {
-                    s.classList.remove('selected');
-                    s.style.color = "#444";
-                }
+                if (i < count) { s.classList.add('selected'); s.style.color = "#f1c40f"; } 
+                else { s.classList.remove('selected'); s.style.color = "#444"; }
             });
         }
 
-        // Logic Rê chuột (Hover) & Click
         stars.forEach((star, index) => {
-            // Khi rê chuột vào: Sáng các sao đằng trước nó
-            star.addEventListener('mouseover', () => {
-                highlightStars(index + 1);
-                ratingText.innerText = ratingLabels[index];
-                ratingText.style.color = "#f1c40f";
-            });
-
-            // Khi click: Lưu giá trị
-            star.addEventListener('click', () => {
-                ratingValueInput.value = index + 1;
-                // Hiệu ứng nháy nhẹ khi chọn
-                star.style.transform = "scale(1.3)";
-                setTimeout(()=> star.style.transform = "scale(1)", 200);
-            });
+            star.addEventListener('mouseover', () => { highlightStars(index + 1); ratingText.innerText = ratingLabels[index]; ratingText.style.color = "#f1c40f"; });
+            star.addEventListener('click', () => { ratingValueInput.value = index + 1; star.style.transform = "scale(1.3)"; setTimeout(()=> star.style.transform = "scale(1)", 200); });
         });
 
-        // Khi chuột rời khỏi vùng chọn sao:
         widget.addEventListener('mouseleave', () => {
             const currentRating = parseInt(ratingValueInput.value);
-            if (currentRating > 0) {
-                // Nếu đã chọn rồi -> Giữ nguyên mức đã chọn
-                highlightStars(currentRating);
-                ratingText.innerText = ratingLabels[currentRating - 1];
-            } else {
-                // Nếu chưa chọn -> Tắt hết
-                highlightStars(0);
-                ratingText.innerText = "Chưa chọn sao";
-                ratingText.style.color = "#888";
-            }
+            if (currentRating > 0) { highlightStars(currentRating); ratingText.innerText = ratingLabels[currentRating - 1]; } 
+            else { highlightStars(0); ratingText.innerText = "Chưa chọn sao"; ratingText.style.color = "#888"; }
         });
 
-        // 3. GỬI ĐÁNH GIÁ LÊN DATABASE
+        // 3. GỬI ĐÁNH GIÁ (CÓ KÈM AVATAR)
         document.getElementById('btnSubmitReview').addEventListener('click', () => {
             if (!currentUser) return;
-
             const comment = document.getElementById('inputComment').value.trim();
             const starsSelected = parseInt(ratingValueInput.value);
 
-            if (starsSelected === 0) { alert("Bạn ơi, hãy chọn số sao trước nhé! ⭐"); return; }
-            if (comment === "") { alert("Bạn hãy viết vài dòng cảm nhận nhé!"); return; }
+            if (starsSelected === 0) { alert("Vui lòng chọn số sao!"); return; }
+            if (comment === "") { alert("Vui lòng nhập nội dung!"); return; }
 
-            // Hiệu ứng nút đang gửi
             const btn = document.getElementById('btnSubmitReview');
-            const originalText = btn.innerText;
-            btn.innerText = "Đang gửi...";
-            btn.disabled = true;
+            btn.innerText = "Đang gửi..."; btn.disabled = true;
 
-            const reviewsRef = ref(db, 'reviews/' + GAME_ID);
-            push(reviewsRef, {
-                user: currentUser.displayName || currentUser.email.split('@')[0], // Lấy tên đẹp hơn
-                email: currentUser.email,
-                stars: starsSelected,
-                content: comment,
-                createdAt: new Date().toLocaleString('vi-VN')
-            }).then(() => {
-                document.getElementById('inputComment').value = '';
-                ratingValueInput.value = 0;
-                highlightStars(0);
-                ratingText.innerText = "Chưa chọn sao";
-                ratingText.style.color = "#888";
-                alert("Đánh giá của bạn đã được đăng! Cảm ơn bạn.");
-            }).catch((error) => {
-                console.error("Lỗi:", error);
-                alert("Lỗi kết nối, vui lòng thử lại.");
-            }).finally(() => {
-                btn.innerText = originalText;
-                btn.disabled = false;
+            // 👇 BƯỚC MỚI: Lấy Avatar của User trước khi lưu comment
+            const userRef = ref(db, 'users/' + currentUser.uid);
+            get(userRef).then((snapshot) => {
+                let userAvatar = ""; // Mặc định không có
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    if (userData.avatar) userAvatar = userData.avatar;
+                }
+
+                // Sau khi lấy được avatar, tiến hành lưu Comment
+                const reviewsRef = ref(db, 'reviews/' + GAME_ID);
+                push(reviewsRef, {
+                    user: currentUser.displayName || currentUser.email.split('@')[0],
+                    email: currentUser.email,
+                    avatar: userAvatar, // 👇 Lưu avatar vào đây
+                    stars: starsSelected,
+                    content: comment,
+                    createdAt: new Date().toLocaleString('vi-VN')
+                }).then(() => {
+                    document.getElementById('inputComment').value = '';
+                    ratingValueInput.value = 0;
+                    highlightStars(0);
+                    ratingText.innerText = "Chưa chọn sao";
+                    ratingText.style.color = "#888";
+                    alert("Đánh giá thành công!");
+                }).catch(() => alert("Lỗi kết nối!")).finally(() => {
+                    btn.innerText = "Gửi đánh giá"; btn.disabled = false;
+                });
             });
         });
 
-        // 4. TẢI ĐÁNH GIÁ (Realtime)
+        // 4. LOAD ĐÁNH GIÁ (HIỂN THỊ AVATAR THẬT)
         const reviewsRef = ref(db, 'reviews/' + GAME_ID);
         onValue(reviewsRef, (snapshot) => {
             const list = document.getElementById('reviewList');
-            list.innerHTML = ""; 
-
+            list.innerHTML = "";
             if (snapshot.exists()) {
-                const data = snapshot.val();
-                const reviews = Object.values(data).reverse(); // Mới nhất lên đầu
-
+                const reviews = Object.values(snapshot.val()).reverse();
                 reviews.forEach(review => {
                     const starString = '★'.repeat(review.stars) + '☆'.repeat(5 - review.stars);
                     const avatarChar = review.user.charAt(0).toUpperCase();
 
-                    const html = `
+                    // 👇 LOGIC HIỂN THỊ AVATAR
+                    let avatarHTML = "";
+                    if (review.avatar && review.avatar.length > 100) { 
+                        // Nếu có ảnh base64 dài -> Hiện ảnh
+                        avatarHTML = `<img src="${review.avatar}" style="width:35px; height:35px; border-radius:50%; object-fit:cover; border: 2px solid #e74c3c;">`;
+                    } else {
+                        // Nếu không có ảnh -> Hiện chữ cái đầu (như cũ)
+                        avatarHTML = `<div style="width:35px; height:35px; background:#333; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#e74c3c; font-weight:bold; border: 1px solid #555;">${avatarChar}</div>`;
+                    }
+
+                    list.innerHTML += `
                         <div class="review-card">
                             <div class="user-header">
-                                <div style="display:flex; align-items:center; gap:10px;">
-                                    <div style="width:35px; height:35px; background:#333; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#e74c3c; font-weight:bold; border: 1px solid #555;">${avatarChar}</div>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    ${avatarHTML} 
                                     <div>
                                         <span class="username">${review.user}</span>
-                                        <span class="review-date">${review.createdAt}</span>
+                                        <span class="review-date" style="font-size:0.8em; color:#777;">${review.createdAt}</span>
                                     </div>
                                 </div>
-                                <span class="rating" style="font-size: 1.2em;">${starString}</span>
+                                <span class="rating">${starString}</span>
                             </div>
-                            <p class="review-text" style="margin-top: 10px; padding-left: 45px;">${review.content}</p>
-                        </div>
-                    `;
-                    list.innerHTML += html;
+                            <p class="review-text" style="margin-top:10px; padding-left:45px;">${review.content}</p>
+                        </div>`;
                 });
             } else {
-                list.innerHTML = "<div style='text-align:center; padding: 20px; color:#666; font-style:italic;'>Chưa có đánh giá nào. Hãy là người đầu tiên! 🏆</div>";
+                list.innerHTML = "<p style='color:#666;text-align:center'>Chưa có đánh giá nào.</p>";
             }
         });
     </script>

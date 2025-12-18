@@ -3,12 +3,12 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { ref, set, get, child, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// 2. KHỞI TẠO
+// 2. KHỞI TẠO BIẾN
 let cart = []; 
-let wishlist = []; // 👇 Biến lưu danh sách yêu thích
+let wishlist = []; 
 let currentUser = null; 
 
-// --- KHU VỰC DÁN LINK TẢI GAME ---
+// --- DATABASE LINK TẢI GAME ---
 const GAME_DATABASE = {
     "Ace Slayer": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "Bunny Adventure": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
@@ -38,20 +38,20 @@ onAuthStateChanged(auth, (user) => {
         currentUser = user;
         updateUserBox(user.email); 
         loadCartFromFirebase(user.uid);
-        loadWishlistFromFirebase(user.uid); // 👇 Tải wishlist
+        loadWishlistFromFirebase(user.uid); 
     } else {
         currentUser = null;
         updateUserBox(null);
         loadGuestCartFromLocalStorage();
         window.renderCart();
-        wishlist = []; // Xóa wishlist nếu chưa đăng nhập
-        updateWishlistUI(); // Reset trái tim về trắng
+        wishlist = []; 
+        updateWishlistUI();
         const countLabel = document.getElementById('cart-count');
         if(countLabel) countLabel.innerText = "0";
     }
 });
 
-// 4. DATA FUNCTIONS
+// 4. DATA FUNCTIONS (CART & WISHLIST)
 function loadCartFromFirebase(userId) {
     const dbRef = ref(db);
     get(child(dbRef, `carts/${userId}`)).then((snapshot) => {
@@ -60,12 +60,11 @@ function loadCartFromFirebase(userId) {
     }).catch(console.error);
 }
 
-// 👇 HÀM TẢI WISHLIST
 function loadWishlistFromFirebase(userId) {
     const wishRef = ref(db, `users/${userId}/wishlist`);
     onValue(wishRef, (snapshot) => {
         wishlist = snapshot.exists() ? snapshot.val() : [];
-        updateWishlistUI(); // Cập nhật giao diện trái tim
+        updateWishlistUI(); 
     });
 }
 
@@ -77,44 +76,37 @@ function saveData() {
     }
 }
 
-// 👇 HÀM XỬ LÝ CLICK TRÁI TIM
+// 5. WISHLIST LOGIC
 window.toggleWishlist = function(gameName) {
     if (!currentUser) {
         alert("Vui lòng đăng nhập để thêm vào Yêu thích!");
         return;
     }
-
     const index = wishlist.indexOf(gameName);
     if (index > -1) {
-        // Đã có -> Xóa
         wishlist.splice(index, 1);
-        showToast(`Đã xóa ${gameName} khỏi Yêu thích`, true); // True để hiện màu đỏ/cam
+        showToast(`Đã xóa ${gameName} khỏi Yêu thích`, true);
     } else {
-        // Chưa có -> Thêm
         wishlist.push(gameName);
         showToast(`Đã thêm ${gameName} vào Yêu thích`);
     }
-
-    // Lưu ngay lên Firebase
     set(ref(db, `users/${currentUser.uid}/wishlist`), wishlist)
         .catch((err) => console.error("Lỗi lưu wishlist:", err));
 };
 
-// 👇 HÀM CẬP NHẬT MÀU TRÁI TIM
 function updateWishlistUI() {
-    // Tìm tất cả các nút trái tim trong trang
     const buttons = document.querySelectorAll('.wishlist-btn');
     buttons.forEach(btn => {
         const gameName = btn.getAttribute('data-game');
         if (wishlist.includes(gameName)) {
-            btn.classList.add('active'); // Tô đỏ
+            btn.classList.add('active');
         } else {
-            btn.classList.remove('active'); // Về trắng
+            btn.classList.remove('active');
         }
     });
 }
 
-// 5. UI CART FUNCTIONS (GIỮ NGUYÊN)
+// 6. CART UI & LOGIC
 window.renderCart = function() {
     const container = document.getElementById('cartItems');
     const countLabel = document.getElementById('cart-count');
@@ -157,8 +149,8 @@ window.addToCart = function(name, price, imageSrc) {
     saveData();
     window.renderCart(); 
     
-    // Hiệu ứng bay
-    const productImg = document.querySelector('.detail-img') || document.querySelector(`img[alt="${name}"]`); // Fix tìm ảnh thông minh hơn
+    // Animation bay vào giỏ
+    const productImg = document.querySelector('.detail-img') || document.querySelector(`img[alt="${name}"]`);
     const cartIcon = document.querySelector('.cart-icon');
     if (productImg && cartIcon) {
         const flyImg = productImg.cloneNode();
@@ -187,7 +179,7 @@ function showToast(message, isWarning = false) {
     const toast = document.getElementById("toast");
     const msgSpan = document.getElementById("toast-msg");
     msgSpan.innerText = message;
-    toast.style.backgroundColor = isWarning ? "#e74c3c" : "#27ae60"; // Đỏ nếu xóa/trùng, Xanh nếu thêm
+    toast.style.backgroundColor = isWarning ? "#e74c3c" : "#27ae60"; 
     toast.querySelector('i').className = isWarning ? "fas fa-heart-broken" : "fas fa-check-circle";
     toast.className = "show";
     setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
@@ -196,7 +188,7 @@ function showToast(message, isWarning = false) {
 window.removeFromCart = function(index) { cart.splice(index, 1); saveData(); window.renderCart(); };
 window.toggleCart = function() { document.getElementById('cartSidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); };
 
-// FILTER & SORT
+// 7. FILTER & SORT
 window.filterGame = function(category) {
     let buttons = document.getElementsByClassName('filter-btn');
     for (let btn of buttons) {
@@ -239,7 +231,7 @@ window.sortGames = function() {
     window.dispatchEvent(new Event('scroll'));
 };
 
-// PAYMENT
+// 8. PAYMENT & QR
 const MY_BANK = { BANK_ID: 'MB', ACCOUNT_NO: '0357876625', ACCOUNT_NAME: 'DO QUANG THANG', TEMPLATE: 'compact2' };
 window.openCheckout = function() {
     if (cart.length === 0) { alert("Giỏ hàng đang trống!"); return; }
@@ -285,7 +277,7 @@ window.confirmPayment = function() {
     }, 2000);
 };
 
-// UI & CHAT
+// 9. UI HELPER & LOGOUT
 window.searchGame = function() {
     let input = document.getElementById('searchInput').value.toLowerCase();
     let cards = document.getElementsByClassName('product-card');
@@ -319,32 +311,53 @@ reveal();
 const logo = document.querySelector('.logo');
 if (logo) { logo.style.cursor = 'pointer'; logo.addEventListener('click', function() { const isInGameFolder = window.location.pathname.includes("/games/"); window.location.href = (isInGameFolder ? "../" : "") + "index.html"; }); }
 
-// TAWK.TO & CHAT MENU
-const PAGE_ID = "981930334992893"; const TAWK_SRC = 'https://embed.tawk.to/69439d6ea93b66197f06d88c/1jco1tu20'; 
+// 10. TAWK.TO & CHAT MENU (ĐÃ FIX SCOPE)
+const PAGE_ID = "981930334992893"; 
+const TAWK_SRC = 'https://embed.tawk.to/69439d6ea93b66197f06d88c/1jco1tu20'; 
+
 const styleChat = document.createElement('style');
 styleChat.innerHTML = `
-    .chat-container { position: fixed; bottom: 30px; right: 30px; z-index: 99999; display: flex; flex-direction: column-reverse; align-items: center; gap: 15px; transition: 0.3s; }
+    .chat-container { position: fixed; bottom: 30px; right: 30px; z-index: 999999; display: flex; flex-direction: column-reverse; align-items: center; gap: 15px; transition: 0.3s; }
     .chat-container.hidden { display: none !important; }
     .main-chat-btn { width: 60px; height: 60px; background: #e74c3c; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 0 20px rgba(231, 76, 60, 0.6); transition: 0.3s; position: relative; }
     .main-chat-btn:hover { transform: scale(1.1); }
     .chat-container.active .main-chat-btn { background: #333; transform: rotate(45deg); }
     .sub-chat-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; cursor: pointer; text-decoration: none; opacity: 0; transform: translateY(20px) scale(0); pointer-events: none; transition: 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     .chat-container.active .sub-chat-btn { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-    .btn-mess { background: #0084FF; transition-delay: 0.1s; } .btn-tawk { background: #03a84e; transition-delay: 0.05s; }
+    .btn-mess { background: #0084FF; transition-delay: 0.1s; } 
+    .btn-tawk { background: #03a84e; transition-delay: 0.05s; }
     .sub-chat-btn::before { content: attr(data-tooltip); position: absolute; right: 60px; background: rgba(0,0,0,0.8); color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px; opacity: 0; transition: 0.3s; pointer-events: none; white-space: nowrap; }
     .sub-chat-btn:hover::before { opacity: 1; }
+    
     #tawk-bubble-container, .tawk-bubble-container, div[class*="tawk-bubble"] { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
     .tawk-min-container { display: none !important; }
 `;
 document.head.appendChild(styleChat);
-const chatHTML = `<div class="chat-container" id="chatMenu"><div class="main-chat-btn" onclick="toggleChatMenu()"><i class="fas fa-comment-dots"></i></div><a href="https://m.me/${PAGE_ID}" target="_blank" class="sub-chat-btn btn-mess" data-tooltip="Chat Facebook"><i class="fab fa-facebook-messenger"></i></a><div onclick="openTawk()" class="sub-chat-btn btn-tawk" data-tooltip="Chat trực tiếp"><i class="fas fa-headset"></i></div></div>`;
+
+const chatHTML = `
+    <div class="chat-container" id="chatMenu">
+        <div class="main-chat-btn" onclick="toggleChatMenu()"><i class="fas fa-comment-dots"></i></div>
+        <a href="https://m.me/${PAGE_ID}" target="_blank" class="sub-chat-btn btn-mess" data-tooltip="Chat Facebook"><i class="fab fa-facebook-messenger"></i></a>
+        <div onclick="openTawk()" class="sub-chat-btn btn-tawk" data-tooltip="Chat trực tiếp"><i class="fas fa-headset"></i></div>
+    </div>`;
 document.body.insertAdjacentHTML('beforeend', chatHTML);
+
+// Các hàm toàn cục cho Chat
 window.toggleChatMenu = function() { document.getElementById('chatMenu').classList.toggle('active'); };
 window.openTawk = function() { if (window.Tawk_API) { window.Tawk_API.showWidget(); window.Tawk_API.maximize(); document.getElementById('chatMenu').classList.add('hidden'); } };
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-Tawk_API.onLoad = function(){ Tawk_API.hideWidget(); };
-Tawk_API.onChatMaximized = function(){ document.getElementById('chatMenu').classList.add('hidden'); };
-Tawk_API.onChatMinimized = function(){ Tawk_API.hideWidget(); document.getElementById('chatMenu').classList.remove('hidden'); };
-Tawk_API.onChatHidden = function(){ document.getElementById('chatMenu').classList.remove('hidden'); };
-(function(){ var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0]; s1.async=true; s1.src=TAWK_SRC; s1.charset='UTF-8'; s1.setAttribute('crossorigin','*'); s0.parentNode.insertBefore(s1,s0); })();
+
+// Cấu hình Tawk.to dùng biến window
+window.Tawk_API = window.Tawk_API || {};
+window.Tawk_LoadStart = new Date();
+window.Tawk_API.onLoad = function(){ window.Tawk_API.hideWidget(); };
+window.Tawk_API.onChatMaximized = function(){ document.getElementById('chatMenu').classList.add('hidden'); };
+window.Tawk_API.onChatMinimized = function(){ window.Tawk_API.hideWidget(); document.getElementById('chatMenu').classList.remove('hidden'); };
+window.Tawk_API.onChatHidden = function(){ document.getElementById('chatMenu').classList.remove('hidden'); };
+
+(function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true; s1.src=TAWK_SRC; s1.charset='UTF-8'; s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+})();
+
 setInterval(() => { if (window.Tawk_API && !window.Tawk_API.isChatMaximized()) { const menu = document.getElementById('chatMenu'); if (menu && menu.classList.contains('hidden')) { window.Tawk_API.hideWidget(); menu.classList.remove('hidden'); } } }, 1000);

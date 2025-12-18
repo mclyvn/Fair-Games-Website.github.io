@@ -13,13 +13,14 @@ let wishlist = [];
 let currentUser = null; 
 let currentFilterTag = 'all'; 
 
-// Danh sách Link tải game
+// Danh sách Link tải game (ĐÃ FIX TÊN GAME ĐỂ KHÔNG BỊ LỖI "SẮP RA MẮT")
 const GAME_DATABASE = {
     "Ace Slayer": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "Bunny Adventure": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "PUBG Mobile": "https://www.pubgmobile.com/en-US/home.shtml",
     "Elden Ring": "https://store.steampowered.com/app/1245620/Elden_Ring/",
-    "FreeFire": "https://ff.garena.com/vn/",
+    "FreeFire": "https://ff.garena.com/vn/",   // Tên viết liền
+    "Free Fire": "https://ff.garena.com/vn/",  // Tên có dấu cách (Fix lỗi hiển thị)
     "Earth 2130": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "UFO Attack": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
     "Apple Collector": "PASTE_LINK_GOOGLE_DRIVE_VAO_DAY",
@@ -29,6 +30,7 @@ const GAME_DATABASE = {
     "Minecraft": "https://www.minecraft.net/en-us/download"
 };
 
+// Load giỏ hàng tạm thời
 function loadGuestCartFromLocalStorage() {
     try {
         const raw = localStorage.getItem('guestCart');
@@ -131,7 +133,7 @@ function updateWishlistUI() {
 }
 
 // ============================================================
-// 6. GIỎ HÀNG & UI
+// 6. GIỎ HÀNG & UI (FIX LỖI ẢNH)
 // ============================================================
 window.renderCart = function() {
     const container = document.getElementById('cartItems');
@@ -303,7 +305,7 @@ window.openCheckout = function() {
     if (!currentUser) { alert("Vui lòng đăng nhập!"); window.location.href = "login.html"; return; }
 
     const modal = document.getElementById('paymentModal');
-    // 👇 QUAN TRỌNG: Lấy khối nội dung để chỉnh class
+    // 👇 Lấy khối nội dung để chỉnh class to/nhỏ
     const modalContent = document.querySelector('.payment-box'); 
     
     const qrImg = document.getElementById('qrImage');
@@ -324,7 +326,7 @@ window.openCheckout = function() {
         if (qrSection) qrSection.style.display = 'none';
         if (bankInfo) bankInfo.style.display = 'none'; 
         
-        // 👇 THÊM CLASS ĐỂ THU NHỎ
+        // 👇 THÊM CLASS 'compact' để thu nhỏ
         if (modalContent) modalContent.classList.add('compact');
 
         let giftHtml = '<div class="free-gift-icon"><i class="fas fa-gift"></i></div>';
@@ -337,11 +339,11 @@ window.openCheckout = function() {
 
         confirmBtn.innerHTML = '<i class="fas fa-arrow-right"></i> NHẬN GAME NGAY';
     } else {
-        // --- CHẾ ĐỘ CÓ TIỀN: KÍCH THƯỚC CHUẨN 850px ---
+        // --- CHẾ ĐỘ CÓ TIỀN: KÍCH THƯỚC CHUẨN ---
         if (qrSection) qrSection.style.display = 'block'; 
         if (bankInfo) bankInfo.style.display = 'block';   
         
-        // 👇 XÓA CLASS ĐỂ TRỞ VỀ KÍCH THƯỚC BÌNH THƯỜNG
+        // 👇 XÓA CLASS 'compact' để trở về kích thước to
         if (modalContent) modalContent.classList.remove('compact');
 
         const giftIcon = document.querySelector('.free-gift-icon');
@@ -368,6 +370,7 @@ window.confirmPayment = function() {
     btn.style.opacity = "0.7"; btn.disabled = true;
     
     setTimeout(() => {
+        // Lấy thông tin link từ GAME_DATABASE đã sửa
         const itemsWithLinks = cart.map(item => { return { ...item, downloadLink: GAME_DATABASE[item.name] || "#" }; });
         const total = cart.reduce((sum, item) => sum + item.price, 0);
 

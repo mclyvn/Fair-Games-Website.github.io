@@ -286,6 +286,32 @@ window.searchGame = function() {
         cards[i].style.display = title.includes(input) ? "" : "none";
     }
 };
+
+// Tag Filter Function
+window.filterByTag = function(tag) {
+    let cards = document.getElementsByClassName('product-card');
+    
+    // Update active button state
+    document.querySelectorAll('.tag-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    event.target.classList.add('active');
+    
+    // Filter cards based on tag
+    for (let i = 0; i < cards.length; i++) {
+        let cardTags = cards[i].getAttribute('data-tags');
+        
+        if (tag === 'all') {
+            cards[i].style.display = "";
+        } else if (cardTags && cardTags.includes(tag)) {
+            cards[i].style.display = "";
+        } else {
+            cards[i].style.display = "none";
+        }
+    }
+};
+
 function updateUserBox(email) {
     const userBox = document.getElementById("userBox");
     const isInGameFolder = window.location.pathname.includes("/games/");

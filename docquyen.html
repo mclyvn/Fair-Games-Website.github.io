@@ -47,28 +47,26 @@
             </div>
         </div>
 
-        <div class="filter-bar reveal">
-            <div class="filter-group">
-                <button class="filter-btn active" onclick="filterGame('all')">Tất cả</button>
-                <button class="filter-btn" onclick="filterGame('Action')">Hành động</button>
-                <button class="filter-btn" onclick="filterGame('Adventure')">Phiêu lưu</button>
-                <button class="filter-btn" onclick="filterGame('Strategy')">Chiến thuật</button>
-                <button class="filter-btn" onclick="filterGame('Arcade')">Arcade</button>
-                <button class="filter-btn" onclick="filterGame('Casual')">Casual</button>
-            </div>
-        
-            <div class="sort-group">
-                <select id="sortSelect" onchange="sortGames()">
-                    <option value="default">Sắp xếp: Mặc định</option>
-                    <option value="name_az">Tên: A-Z</option>
-                    <option value="name_za">Tên: Z-A</option>
-                </select>
+        <div class="tag-filter-wrapper reveal">
+            <div class="tag-filter-label">Lọc theo thể loại:</div>
+            <div class="tag-filter-buttons">
+                <button class="tag-btn active" onclick="filterByTag('all')">Tất cả</button>
+                <button class="tag-btn" onclick="filterByTag('action')">Action</button>
+                <button class="tag-btn" onclick="filterByTag('rpg')">RPG</button>
+                <button class="tag-btn" onclick="filterByTag('adventure')">Adventure</button>
+                <button class="tag-btn" onclick="filterByTag('shooter')">Shooter</button>
+                <button class="tag-btn" onclick="filterByTag('strategy')">Strategy</button>
+                <button class="tag-btn" onclick="filterByTag('casual')">Casual</button>
+                <button class="tag-btn" onclick="filterByTag('survival')">Survival</button>
+                <button class="tag-btn" onclick="filterByTag('horror')">Horror</button>
+                <button class="tag-btn" onclick="filterByTag('sandbox')">Sandbox</button>
+                <button class="tag-btn" onclick="filterByTag('arcade')">Arcade</button>
             </div>
         </div>
 
-        <div class="product-grid" id="gameGrid">
+        <div class="product-grid">
             
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="action rpg">
                 <div class="badge hot">HOT</div>
                 <div class="card-img-wrapper">
                     <a href="games/game1.html">
@@ -82,7 +80,7 @@
                 <button onclick="addToCart('Ace Slayer', 0, 'images/slayer.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="adventure">
                 <div class="card-img-wrapper">
                     <a href="games/game2.html">
                         <img src="images/bunny.png" alt="Bunny Adventure">
@@ -95,7 +93,7 @@
                 <button onclick="addToCart('Bunny Adventure', 0, 'images/bunny.png')">Thêm vào giỏ</button>
             </div>
 
-             <div class="product-card reveal">
+             <div class="product-card reveal" data-tags="strategy">
                 <div class="card-img-wrapper">
                     <a href="games/game6.html">
                         <img src="images/earth2130.png" alt="Earth 2130">
@@ -108,7 +106,7 @@
                 <button onclick="addToCart('Earth 2130', 0, 'images/earth2130.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="arcade">
                 <div class="card-img-wrapper">
                     <a href="games/game7.html">
                         <img src="images/ufo.png" alt="UFO Attack">
@@ -121,7 +119,7 @@
                 <button onclick="addToCart('UFO Attack', 0, 'images/ufo.png')">Thêm vào giỏ</button>
             </div>
 
-            <div class="product-card reveal">
+            <div class="product-card reveal" data-tags="casual arcade">
                 <div class="card-img-wrapper">
                     <a href="games/game8.html">
                         <img src="images/apple.png" alt="Apple Collector">

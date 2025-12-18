@@ -120,12 +120,12 @@
         const widget = document.getElementById('starWidget');
         const ratingValueInput = document.getElementById('ratingValue');
         const ratingText = document.getElementById('ratingText');
-        const ratingLabels = ["Rất tệ", "Tệ", "Bình thường", "Tốt", "Tuyệt vời"];
-        
+        const ratingLabels = ["Rất tệ","Tệ","Bình thường","Tốt","Tuyệt vời"];
+
         function highlightStars(count) {
             stars.forEach((s, i) => {
-                if (i < count) { s.classList.add('selected'); s.style.color = "#f1c40f"; } 
-                else { s.classList.remove('selected'); s.style.color = "#444"; }
+                if (i < count) { s.classList.add('selected'); s.style.color = '#f1c40f'; }
+                else { s.classList.remove('selected'); s.style.color = '#444'; }
             });
         }
 

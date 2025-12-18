@@ -468,27 +468,40 @@
             onValue(ordersRef, (snapshot) => {
                 loading.style.display = 'none'; 
                 container.innerHTML = ""; 
+                
                 let totalGamesCount = 0;
                 
+                // Dùng Set để lưu tên các game đã hiển thị (giúp lọc trùng)
+                const renderedGames = new Set();
+
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    // Lấy danh sách đơn hàng và đảo ngược (Mới nhất lên đầu)
+                    // Lấy danh sách đơn hàng mới nhất trước
                     const orders = Object.values(data).reverse();
                     
+                    // Biến chứa toàn bộ HTML của các game
+                    let allGamesHtml = "";
+
                     orders.forEach(order => {
-                        let gamesHtml = "";
                         if (order.items) {
-                            totalGamesCount += order.items.length;
                             order.items.forEach(game => {
+                                // --- LOGIC LỌC TRÙNG ---
+                                // Nếu tên game đã có trong danh sách đã vẽ -> Bỏ qua
+                                if (renderedGames.has(game.name)) return;
+                                
+                                // Nếu chưa có -> Thêm vào danh sách đã vẽ để đánh dấu
+                                renderedGames.add(game.name);
+                                totalGamesCount++;
+
+                                // Xử lý hiển thị
                                 let priceText = game.price === 0 ? "FREE" : `$${game.price}`;
-                                // Logic lấy link tải
                                 let finalLink = game.downloadLink || GAME_SOURCE[game.name] || "#";
                                 let downloadBtn = (finalLink && finalLink !== "#") 
                                     ? `<a href="${finalLink}" target="_blank" class="download-btn"><i class="fas fa-download"></i> Tải Game</a>` 
                                     : `<button class="download-btn disabled" disabled><i class="fas fa-clock"></i> Sắp ra mắt</button>`;
                                 
-                                // HTML từng game
-                                gamesHtml += `
+                                // Cộng dồn HTML (Không chia theo đơn hàng nữa)
+                                allGamesHtml += `
                                     <div class="purchased-game">
                                         <img src="${game.image}" alt="${game.name}">
                                         <div class="game-info">
@@ -499,20 +512,19 @@
                                     </div>`;
                             });
                         }
-                        
-                        // --- ĐÃ XÓA PHẦN NGÀY MUA Ở ĐÂY ---
-                        // Chỉ hiển thị danh sách game, không hiện header ngày tháng nữa
-                        container.innerHTML += `
-                            <div class="order-card" style="border:none; padding:0; margin-bottom: 10px;">
-                                <div class="game-list" style="display:flex; flex-direction:column; gap:10px;">
-                                    ${gamesHtml}
-                                </div>
-                            </div>`;
                     });
                     
+                    // Cập nhật số lượng game sở hữu (không tính trùng)
                     document.getElementById('gamesOwned').innerText = totalGamesCount;
+
+                    // Đưa toàn bộ danh sách game vào giao diện
+                    container.innerHTML = `
+                        <div class="game-list" style="display:flex; flex-direction:column; gap:10px;">
+                            ${allGamesHtml}
+                        </div>`;
+
                 } else { 
-                    container.innerHTML = `<div style="text-align:center; padding:50px; color:#666;"><p>Chưa có đơn hàng nào.</p></div>`; 
+                    container.innerHTML = `<div style="text-align:center; padding:50px; color:#666;"><p>Chưa có game nào trong thư viện.</p></div>`; 
                 }
             });
         }

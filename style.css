@@ -118,8 +118,22 @@ nav a.active::after { width: 100%; }
 .search-wrapper input:focus {
     border-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.3); width: 350px;
 }
-.search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #888; }
+/* Thêm class này để căn chỉnh khung tìm kiếm */
+.search-wrapper {
+    position: relative; /* Giữ icon nằm trong khung này */
+    display: flex;      /* Đảm bảo input nằm gọn gàng */
+    align-items: center;
+}
 
+/* Sửa lại icon tìm kiếm một chút để nó nằm chính giữa theo chiều dọc */
+.search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%); /* Căn giữa hoàn hảo */
+    color: #888;
+    pointer-events: none; /* Để click vào icon vẫn focus vào input */
+}
 /* Tag Filter Buttons */
 .tag-filter-wrapper {
     margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.03);
@@ -227,7 +241,39 @@ footer { background: #050505; color: #888; padding-top: 60px; margin-top: 80px; 
 .footer-bottom { background: #000; text-align: center; padding: 20px; border-top: 1px solid #111; }
 
 /* Sidebar & Modal (Giữ style tối) */
-.cart-sidebar { position: fixed; top: 0; right: -400px; width: 350px; height: 100%; background: #151515; z-index: 2000; transition: 0.4s; display: flex; flex-direction: column; border-left: 1px solid #333; }
+/* --- TÌM VÀ SỬA ĐOẠN NÀY TRONG style.css --- */
+
+.cart-sidebar { 
+    position: fixed; 
+    top: 0; 
+    right: -400px; 
+    width: 350px; 
+    height: 100%; 
+    background: #151515; 
+    
+    /* 👇 SỬA DÒNG NÀY: Tăng lên cao hơn 999999 */
+    z-index: 1000001 !important; 
+    
+    transition: 0.4s; 
+    display: flex; 
+    flex-direction: column; 
+    border-left: 1px solid #333; 
+}
+
+.overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.7); 
+    
+    /* 👇 SỬA DÒNG NÀY: Cao hơn nút Chat để lớp mờ phủ lên nó */
+    z-index: 1000000 !important; 
+    
+    display: none; 
+    backdrop-filter: blur(3px); 
+}
 .cart-sidebar.open { right: 0; box-shadow: -10px 0 30px rgba(0,0,0,0.8); }
 .cart-header { padding: 20px; background: #111; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
 /* Close button in cart header */
